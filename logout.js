@@ -61,13 +61,9 @@ async function getUserData() {
 }
 getUserData();
 
-
-// Function to redirect to sign-in page
 function redirectToSignIn() {
   window.location.href = 'index.html';
 }
-
-// Function to handle sign-out
 function signOutUser() {
   auth.signOut().then(() => {
     console.log("User signed out successfully");
