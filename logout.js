@@ -62,6 +62,7 @@ async function getUserData() {
 getUserData();
 
 
+// Function to redirect to sign-in page
 function redirectToSignIn() {
   window.location.href = 'index.html';
 }
@@ -105,4 +106,9 @@ document.addEventListener('DOMContentLoaded', function () {
   } else {
     console.error("Sign out button not found in the document.");
   }
+});
+
+// Prevent going back to dashboard after logout
+window.addEventListener('unload', function() {
+  history.replaceState(null, null, window.location.href);
 });
