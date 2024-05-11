@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
         errorMessage1.style.color = "green";
         errorMessage1.style.display = "block";
         console.log('User:', user);
-        window.location.href = 'dashboard.html?email=${user.email}';
+        window.location.href = 'dashboard.html';
       })
       .catch((error) => {
         const errorMessage = error.message;
