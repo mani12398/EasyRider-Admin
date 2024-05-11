@@ -5,7 +5,9 @@
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
 }
-
+.highlight {
+  background-color: yellow;
+}
 :root {
   --primary-color: #edae10;
   --panel-color: #fff;
@@ -17,6 +19,7 @@
   --box2-color: #edae10;
   --box3-color: #50C878;
   --title-icon-color: #fff;
+  --search-icon-color:#edae10
 
   --tran-05: all 0.5s ease;
   --tran-03: all 0.3s ease;
@@ -281,7 +284,7 @@ nav.close ~ .dashboard .top {
 }
 .top .search-box input {
   position: absolute;
-  border: 1px solid var(--border-color);
+  border: 1px solid #edae10;
   background-color: var(--panel-color);
   padding: 0 25px 0 50px;
   border-radius: 5px;
@@ -299,7 +302,8 @@ nav.close ~ .dashboard .top {
   z-index: 10;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--logo_name_color)
+  color: #edae10;
+  
 }
 .top img {
   width: 40px;
@@ -350,7 +354,7 @@ nav.close ~ .dashboard .top {
 }
 .boxes .box i {
   font-size: 35px;
-  color: var(--text-color);
+  color: var(--logo_name_color);
 }
 .boxes .box .text {
   white-space: nowrap;
@@ -408,21 +412,22 @@ nav.close ~ .dashboard .top {
 }
 
 .table th {
-  font-size: 20px;
-  font-weight: 500;
-  color: var(--text-color);
+  font-size: 23px;
+  font-weight: 900;
+  color: var(--logo_name_color);
   padding: 15px;
-  text-align: left;
+  text-align: justify;
   margin-bottom: 20px;
+  
 }
 
 .table td {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 400;
   color: var(--text-color);
   padding: 15px;
   white-space: nowrap;
-  text-align: left;
+  text-align: justify;
 }
 
 .table tbody tr:nth-child(even) {
