@@ -76,29 +76,20 @@ function signOutUser() {
     console.error("Error signing out:", error);
   });
 }
-
-// Function to check if the user is logged in and redirect if not
 function checkAuthAndRedirect() {
   const user = auth.currentUser;
   if (!user) {
     redirectToSignIn();
   }
 }
-
-// Check if the user is signed in on page load
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     redirectToSignIn();
   }
 });
-
-// Listen for popstate event (back/forward button clicked)
 window.addEventListener('popstate', function(event) {
-  // Check authentication status when navigating back or forward
   checkAuthAndRedirect();
 });
-
-// Add event listener for sign-out button
 document.addEventListener('DOMContentLoaded', function () {
   const signOutButton = document.getElementById('signOutButton');
   if (signOutButton) {
@@ -107,8 +98,6 @@ document.addEventListener('DOMContentLoaded', function () {
     console.error("Sign out button not found in the document.");
   }
 });
-
-// Prevent going back to dashboard after logout
 window.addEventListener('unload', function() {
   history.replaceState(null, null, window.location.href);
 });
