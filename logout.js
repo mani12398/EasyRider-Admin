@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-import { getFirestore, query, where, getDocs, collection, setDoc, doc, updateDoc} from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+import { getFirestore, query, where, getDocs, collection, setDoc, doc, updateDoc,getDoc} from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL} from "https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js";
 
 const firebaseConfig = {
@@ -178,5 +178,106 @@ document.getElementById('profile-image').addEventListener('click', function() {
 });
 
 
+/*function displayProfileImage(email) {
+  try {
+    const adminsRef = collection(db, 'admins');
+    console.log("Admins reference:", adminsRef); // Log adminsRef to ensure it's correctly initialized
+    const query = where(adminsRef, 'email', '==', email);
+    getDocs(query)
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          console.log("Document data:", data);
+          const profileImageUrl = data.profileImageUrl;
+          if (profileImageUrl) {
+            const profileImage = document.getElementById('profile-image');
+            if (profileImage) {
+              profileImage.src = profileImageUrl;
+            }
+          } else {
+            console.error('Profile image URL not found in Firestore for email:', email);
+          }
+        });
+      })
+      .catch((error) => {
+        console.error('Error querying admins collection:', error);
+      });
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
+// Trigger the function to retrieve email from Firestore and display the profile image when the page loads
+window.onload = function() {
+  const emailDisplay = document.getElementById('username-display1');
+  if (emailDisplay) {
+    const email = emailDisplay.textContent.trim(); // Assuming textContent contains the email
+    displayProfileImage(email);
+  }
+};*/
 
 
+
+
+/*const docRef = doc(db, "admins", "admin_01");
+const getProfilePicUrl = async () => {
+    try {
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const profilePicUrl = docSnap.data().profileImageUrl;
+            console.log("Profile Picture URL:", profilePicUrl); // Log the URL
+            return profilePicUrl;
+        } else {
+            console.log("No such document!");
+            return null;
+        }
+    } catch (error) {
+        console.log("Error getting document:", error);
+        return null;
+    }
+};
+const displayProfilePic = async () => {
+    const profilePicUrl = await getProfilePicUrl();
+    if (profilePicUrl) {
+        console.log("Setting profile picture URL:", profilePicUrl);
+        const profilePicImg = document.getElementById("profile-image");
+        profilePicImg.src = profilePicUrl;
+    }
+};
+displayProfilePic();*/
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    //const username = urlParams.get('username');
+
+const getProfilePicUrl = async (email) => {
+  try {
+    const queryRef = query(collection(db, "admins"), where("email", "==", email));
+    console.log("Query:", queryRef);
+    const querySnapshot = await getDocs(queryRef);
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(doc => {
+        console.log("Document data:", doc.data());
+      });
+      const docSnap = querySnapshot.docs[0];
+      const profilePicUrl = docSnap.data().profileImageUrl;
+      console.log("Profile Picture URL:", profilePicUrl); // Log the URL
+      return profilePicUrl;
+    } else {
+      console.log("No such document found for email:", email);
+      return null;
+    }
+  } catch (error) {
+    console.log("Error querying admins collection:", error);
+    return null;
+  }
+};
+const displayProfilePic = async () => {
+  const profilePicUrl = await getProfilePicUrl(email);
+  if (profilePicUrl) {
+    const profilePicImg = document.getElementById("profile-image");
+    profilePicImg.src = profilePicUrl;
+  }
+};
+
+// Call displayProfilePic when the dashboard.html page loads
+window.onload = displayProfilePic;
