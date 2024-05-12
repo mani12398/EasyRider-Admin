@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+import { getFirestore, query, where, getDocs, collection, setDoc, doc, updateDoc} from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL} from "https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js";
+
 const firebaseConfig = {
   apiKey: 'AIzaSyCOgAUgsl-fy02IVYVMO2cO8UCzJWQLygY',
   authDomain: 'ridemate-7d7f7.firebaseapp.com',
@@ -12,6 +14,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
+
+
 const driverCollection = collection(db, 'drivers');
 const usersCollection = collection(db, 'googleusers');
 async function getCount(collectionRef) {
@@ -97,3 +102,81 @@ document.addEventListener('DOMContentLoaded', function () {
 window.addEventListener('unload', function() {
   history.replaceState(null, null, window.location.href);
 });
+
+function getUrlParameter(name) {
+  name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+  var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+  var results = regex.exec(location.search);
+  return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
+const username = getUrlParameter('username');
+document.getElementById('username-display').textContent = username;
+
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  const email = params.get('email');
+  const emailElement = document.getElementById('username-display1');
+  emailElement.textContent = email;
+});
+
+
+
+document.getElementById('file-input').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const profileImage = document.getElementById('profile-image');
+    if (profileImage) {
+      profileImage.src = e.target.result;
+    }
+  };
+  reader.readAsDataURL(file);
+  const emailDisplay = document.getElementById('username-display1');
+  if (emailDisplay) {
+    const email = emailDisplay.textContent.trim(); 
+    const storageRef = ref(storage, 'profile_images/' + email + '/' + file.name);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    uploadTask.on('state_changed', 
+      function(snapshot) {
+      }, 
+      function(error) {
+        console.error('Upload error:', error);
+      }, 
+      function() {
+        getDownloadURL(uploadTask.snapshot.ref).then(function(downloadURL) {
+          const queryRef = query(collection(db, "admins"), where("email", "==", email));
+          getDocs(queryRef).then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              updateDoc(doc.ref, { profileImageUrl: downloadURL })
+                .then(() => {
+                  console.log("Document successfully updated!");
+                  const profileImage = document.getElementById('profile-image');
+                  if (profileImage) {
+                    profileImage.src = downloadURL;
+                  }
+                  alert('Profile image updated successfully!');
+                })
+                .catch((error) => {
+                  console.error('Error updating profile image:', error);
+                  alert('Error updating profile image: ' + error.message);
+                });
+            });
+          }).catch((error) => {
+            console.error('Error querying document:', error);
+            alert('Error querying document: ' + error.message);
+          });
+        });
+      }
+    );
+  }
+});
+document.getElementById('profile-image').addEventListener('click', function() {
+  const fileInput = document.getElementById('file-input');
+  if (fileInput) {
+    fileInput.click(); 
+  }
+});
+
+
+
+

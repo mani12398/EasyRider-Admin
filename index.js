@@ -1,5 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+import { getFirestore, query, where, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCOgAUgsl-fy02IVYVMO2cO8UCzJWQLygY',
@@ -13,6 +15,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const firestore = getFirestore(app);
+const storage = getStorage(app);
 
 document.addEventListener("DOMContentLoaded", function () {
   const submit = document.getElementById('submit');
@@ -35,13 +39,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const password = passwordInput.value;
 
     signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         const user = userCredential.user;
+        const username = await getUsername(email);
         errorMessage1.innerHTML = '<i class="fas fa-check-circle"></i> Login Successful';
         errorMessage1.style.color = "green";
         errorMessage1.style.display = "block";
-        console.log('User:', user);
-        window.location.href = 'dashboard.html';
+        if (username) {
+          console.log('User:', user);
+          console.log('Username:', username);
+          window.location.href = `dashboard.html?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`;
+        } else {
+          console.log('Failed to get username');
+        }
       })
       .catch((error) => {
         const errorMessage = error.message;
@@ -51,6 +61,38 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   });
 });
+
+async function getUsername(email) {
+  try {
+    const adminsCollectionRef = collection(firestore, 'admins');
+    const querySnapshot = await getDocs(query(adminsCollectionRef, where("email", "==", email)));   
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
+      const userData = userDoc.data();
+      const username = userData.username;
+      return username;
+    } else {
+      console.log('User with email', email, 'not found in "admins" collection');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error getting admin document:', error);
+    return null;
+  }
+}
+const loginEmail = document.getElementById('email').value;
+
+getUsername(loginEmail)
+  .then(username => {
+    if (username) {
+      console.log('Username:', username);
+    } else {
+      console.log('Username not found for email:', loginEmail);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
 
 document.addEventListener("DOMContentLoaded", function () {
   const submitButton = document.getElementById('submit1');
@@ -144,4 +186,3 @@ emailInput3.addEventListener('input', function () {
     errorMessage4.style.display = 'none';
   }
 });
-
