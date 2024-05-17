@@ -16,13 +16,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const firestore = getFirestore(app);
-const storage = getStorage(app);
+const db = getStorage(app);
 
 document.addEventListener("DOMContentLoaded", function () {
   const submit = document.getElementById('submit');
   const errorMessage1 = document.getElementById('error-message');
   const emailInput = document.getElementById('email');
   const passwordInput = document.getElementById('password');
+
 
   submit.addEventListener("click", function (event) {
     event.preventDefault();
@@ -46,8 +47,12 @@ document.addEventListener("DOMContentLoaded", function () {
         errorMessage1.style.color = "green";
         errorMessage1.style.display = "block";
         if (username) {
-          console.log('User:', user);
-          console.log('Username:', username);
+          localStorage.setItem('user', JSON.stringify({
+            email: email,
+            username: username
+          }));
+
+          // Redirect to dashboard
           window.location.href = `dashboard.html?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`;
         } else {
           console.log('Failed to get username');
@@ -93,7 +98,7 @@ getUsername(loginEmail)
   .catch(error => {
     console.error('Error:', error);
   });
-
+  
 document.addEventListener("DOMContentLoaded", function () {
   const submitButton = document.getElementById('submit1');
   const errorMessage2 = document.getElementById('error-message1');

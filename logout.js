@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-import { getFirestore, query, where, getDocs, collection, setDoc, doc, updateDoc,getDoc} from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL} from "https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js";
+import { getFirestore, query, where, getDocs, collection, setDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCOgAUgsl-fy02IVYVMO2cO8UCzJWQLygY',
@@ -88,7 +88,7 @@ onAuthStateChanged(auth, (user) => {
     redirectToSignIn();
   }
 });
-window.addEventListener('popstate', function(event) {
+window.addEventListener('popstate', function (event) {
   checkAuthAndRedirect();
 });
 document.addEventListener('DOMContentLoaded', function () {
@@ -99,11 +99,11 @@ document.addEventListener('DOMContentLoaded', function () {
     console.error("Sign out button not found in the document.");
   }
 });
-window.addEventListener('unload', function() {
+window.addEventListener('unload', function () {
   history.replaceState(null, null, window.location.href);
 });
 
-function getUrlParameter(name) {
+/*function getUrlParameter(name) {
   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
   var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
   var results = regex.exec(location.search);
@@ -117,34 +117,94 @@ document.addEventListener("DOMContentLoaded", function () {
   const email = params.get('email');
   const emailElement = document.getElementById('username-display1');
   emailElement.textContent = email;
-});
+});*/
+
+/*document.addEventListener("DOMContentLoaded", function () {
+  // Function to get URL parameter by name
+  function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  }
+
+  // Function to set value in localStorage
+  function setStoredValue(key, value) {
+    localStorage.setItem(key, value);
+  }
+
+  // Function to get value from localStorage
+  function getStoredValue(key) {
+    return localStorage.getItem(key);
+  }
+
+  // Update displayed username and email
+  function updateDisplayedUserData(email, username) {
+    document.getElementById('username-display').textContent = username;
+    document.getElementById('username-display1').textContent = email;
+  }
+
+  // Get username and email from URL parameters
+  const emailFromUrl = getUrlParameter('email');
+  const usernameFromUrl = getUrlParameter('username');
+
+  // If email and username are available in URL parameters, update localStorage and displayed data
+  if (emailFromUrl && usernameFromUrl) {
+    setStoredValue('email', emailFromUrl);
+    setStoredValue('username', usernameFromUrl);
+    updateDisplayedUserData(emailFromUrl, usernameFromUrl);
+  } else {
+    console.error('Email or username not found in URL parameters.');
+  }
+
+  // Call updateDisplayedUserData again when the page loads
+  window.onload = function () {
+    const storedUsername = getStoredValue('username');
+    const storedEmail = getStoredValue('email');
+    if (storedUsername && storedEmail) {
+      updateDisplayedUserData(storedEmail, storedUsername);
+    }
+  };
+
+  // Log the stored values to verify
+  const storedUsername = getStoredValue('username');
+  const storedEmail = getStoredValue('email');
+  console.log('Stored username:', storedUsername);
+  console.log('Stored email:', storedEmail);
+});*/
 
 
 
-document.getElementById('file-input').addEventListener('change', function(event) {
+/*document.getElementById('file-input').addEventListener('change', function (event) {
   const file = event.target.files[0];
   const reader = new FileReader();
-  reader.onload = function(e) {
+  
+  reader.onload = function (e) {
     const profileImage = document.getElementById('profile-image');
     if (profileImage) {
       profileImage.src = e.target.result;
     }
   };
+  
   reader.readAsDataURL(file);
+  
   const emailDisplay = document.getElementById('username-display1');
   if (emailDisplay) {
-    const email = emailDisplay.textContent.trim(); 
+    const email = emailDisplay.textContent.trim();
     const storageRef = ref(storage, 'profile_images/' + email + '/' + file.name);
     const uploadTask = uploadBytesResumable(storageRef, file);
-    uploadTask.on('state_changed', 
-      function(snapshot) {
-      }, 
-      function(error) {
+    
+    uploadTask.on('state_changed',
+      function (snapshot) {
+        // Handle progress, pause, and resume here if needed
+      },
+      function (error) {
         console.error('Upload error:', error);
-      }, 
-      function() {
-        getDownloadURL(uploadTask.snapshot.ref).then(function(downloadURL) {
+      },
+      function () {
+        getDownloadURL(uploadTask.snapshot.ref).then(function (downloadURL) {
           const queryRef = query(collection(db, "admins"), where("email", "==", email));
+          
           getDocs(queryRef).then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
               updateDoc(doc.ref, { profileImageUrl: downloadURL })
@@ -165,89 +225,23 @@ document.getElementById('file-input').addEventListener('change', function(event)
             console.error('Error querying document:', error);
             alert('Error querying document: ' + error.message);
           });
+        }).catch((error) => {
+          console.error('Error getting download URL:', error);
         });
       }
     );
   }
 });
-document.getElementById('profile-image').addEventListener('click', function() {
+
+document.getElementById('profile-image').addEventListener('click', function () {
   const fileInput = document.getElementById('file-input');
   if (fileInput) {
-    fileInput.click(); 
+    fileInput.click();
   }
 });
 
-
-/*function displayProfileImage(email) {
-  try {
-    const adminsRef = collection(db, 'admins');
-    console.log("Admins reference:", adminsRef); // Log adminsRef to ensure it's correctly initialized
-    const query = where(adminsRef, 'email', '==', email);
-    getDocs(query)
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          console.log("Document data:", data);
-          const profileImageUrl = data.profileImageUrl;
-          if (profileImageUrl) {
-            const profileImage = document.getElementById('profile-image');
-            if (profileImage) {
-              profileImage.src = profileImageUrl;
-            }
-          } else {
-            console.error('Profile image URL not found in Firestore for email:', email);
-          }
-        });
-      })
-      .catch((error) => {
-        console.error('Error querying admins collection:', error);
-      });
-  } catch (error) {
-    console.error('An error occurred:', error);
-  }
-}
-
-// Trigger the function to retrieve email from Firestore and display the profile image when the page loads
-window.onload = function() {
-  const emailDisplay = document.getElementById('username-display1');
-  if (emailDisplay) {
-    const email = emailDisplay.textContent.trim(); // Assuming textContent contains the email
-    displayProfileImage(email);
-  }
-};*/
-
-
-
-
-/*const docRef = doc(db, "admins", "admin_01");
-const getProfilePicUrl = async () => {
-    try {
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            const profilePicUrl = docSnap.data().profileImageUrl;
-            console.log("Profile Picture URL:", profilePicUrl); // Log the URL
-            return profilePicUrl;
-        } else {
-            console.log("No such document!");
-            return null;
-        }
-    } catch (error) {
-        console.log("Error getting document:", error);
-        return null;
-    }
-};
-const displayProfilePic = async () => {
-    const profilePicUrl = await getProfilePicUrl();
-    if (profilePicUrl) {
-        console.log("Setting profile picture URL:", profilePicUrl);
-        const profilePicImg = document.getElementById("profile-image");
-        profilePicImg.src = profilePicUrl;
-    }
-};
-displayProfilePic();*/
-    const urlParams = new URLSearchParams(window.location.search);
-    const email = urlParams.get('email');
-    //const username = urlParams.get('username');
+const urlParams = new URLSearchParams(window.location.search);
+const email = urlParams.get('email');
 
 const getProfilePicUrl = async (email) => {
   try {
@@ -255,12 +249,9 @@ const getProfilePicUrl = async (email) => {
     console.log("Query:", queryRef);
     const querySnapshot = await getDocs(queryRef);
     if (!querySnapshot.empty) {
-      querySnapshot.forEach(doc => {
-        console.log("Document data:", doc.data());
-      });
       const docSnap = querySnapshot.docs[0];
       const profilePicUrl = docSnap.data().profileImageUrl;
-      console.log("Profile Picture URL:", profilePicUrl); // Log the URL
+      console.log("Profile Picture URL:", profilePicUrl); 
       return profilePicUrl;
     } else {
       console.log("No such document found for email:", email);
@@ -271,13 +262,184 @@ const getProfilePicUrl = async (email) => {
     return null;
   }
 };
+
 const displayProfilePic = async () => {
   const profilePicUrl = await getProfilePicUrl(email);
   if (profilePicUrl) {
     const profilePicImg = document.getElementById("profile-image");
     profilePicImg.src = profilePicUrl;
+  } else {
+    console.log("No profile picture URL found.");
   }
 };
 
-// Call displayProfilePic when the dashboard.html page loads
-window.onload = displayProfilePic;
+window.onload = displayProfilePic;*/
+document.addEventListener("DOMContentLoaded", function () {
+  console.log('DOM fully loaded and parsed');
+
+  // Function to get URL parameter by name
+  function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  }
+
+  // Function to set value in localStorage
+  function setStoredValue(key, value) {
+    localStorage.setItem(key, value);
+    console.log(`Stored ${key}:`, value);
+  }
+
+  // Function to get value from localStorage
+  function getStoredValue(key) {
+    const value = localStorage.getItem(key);
+    console.log(`Retrieved ${key}:`, value);
+    return value;
+  }
+
+  // Update displayed username and email
+  function updateDisplayedUserData(email, username) {
+    console.log('Updating displayed user data with:', { email, username });
+    document.getElementById('username-display').textContent = username;
+    document.getElementById('username-display1').textContent = email;
+  }
+
+  // Get username and email from URL parameters
+  const emailFromUrl = getUrlParameter('email');
+  const usernameFromUrl = getUrlParameter('username');
+
+  console.log('Email from URL:', emailFromUrl);
+  console.log('Username from URL:', usernameFromUrl);
+
+  // If email and username are available in URL parameters, update localStorage and displayed data
+  if (emailFromUrl && usernameFromUrl) {
+    setStoredValue('email', emailFromUrl);
+    setStoredValue('username', usernameFromUrl);
+    updateDisplayedUserData(emailFromUrl, usernameFromUrl);
+  } else {
+    console.error('Email or username not found in URL parameters.');
+  }
+
+  // Function to get profile picture URL from Firestore
+  const getProfilePicUrl = async (email) => {
+    try {
+      console.log('Querying Firestore for email:', email);
+      const queryRef = query(collection(db, "admins"), where("email", "==", email));
+      const querySnapshot = await getDocs(queryRef);
+      if (!querySnapshot.empty) {
+        const docSnap = querySnapshot.docs[0];
+        const profilePicUrl = docSnap.data().profileImageUrl;
+        console.log("Profile Picture URL:", profilePicUrl);
+        return profilePicUrl;
+      } else {
+        console.log("No document found for email:", email);
+        return null;
+      }
+    } catch (error) {
+      console.log("Error querying admins collection:", error);
+      return null;
+    }
+  };
+
+  // Function to display profile picture
+  const displayProfilePic = async () => {
+    const storedEmail = getStoredValue('email');
+    if (storedEmail) {
+      const profilePicUrl = await getProfilePicUrl(storedEmail);
+      if (profilePicUrl) {
+        const profilePicImg = document.getElementById("profile-image");
+        profilePicImg.src = profilePicUrl;
+        console.log("Profile picture set to:", profilePicUrl);
+      } else {
+        console.log("No profile picture URL found.");
+      }
+    }
+  };
+
+  // Call updateDisplayedUserData and displayProfilePic when the page loads
+  window.onload = function () {
+    console.log('Window loaded');
+    const storedUsername = getStoredValue('username');
+    const storedEmail = getStoredValue('email');
+    if (storedUsername && storedEmail) {
+      updateDisplayedUserData(storedEmail, storedUsername);
+      displayProfilePic();
+    }
+  };
+
+  // Log the stored values to verify
+  const storedUsername = getStoredValue('username');
+  const storedEmail = getStoredValue('email');
+  console.log('Stored username:', storedUsername);
+  console.log('Stored email:', storedEmail);
+});
+
+// Profile picture upload and update
+document.getElementById('file-input').addEventListener('change', function (event) {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+  
+  reader.onload = function (e) {
+    const profileImage = document.getElementById('profile-image');
+    if (profileImage) {
+      profileImage.src = e.target.result;
+      console.log("Local profile image preview set to:", e.target.result);
+    }
+  };
+  
+  reader.readAsDataURL(file);
+  
+  const emailDisplay = document.getElementById('username-display1');
+  if (emailDisplay) {
+    const email = emailDisplay.textContent.trim();
+    const storageRef = ref(storage, 'profile_images/' + email + '/' + file.name);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    
+    uploadTask.on('state_changed',
+      function (snapshot) {
+        // Handle progress, pause, and resume here if needed
+      },
+      function (error) {
+        console.error('Upload error:', error);
+      },
+      function () {
+        getDownloadURL(uploadTask.snapshot.ref).then(function (downloadURL) {
+          console.log("Download URL for uploaded image:", downloadURL);
+          const queryRef = query(collection(db, "admins"), where("email", "==", email));
+          
+          getDocs(queryRef).then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              updateDoc(doc.ref, { profileImageUrl: downloadURL })
+                .then(() => {
+                  console.log("Document successfully updated!");
+                  const profileImage = document.getElementById('profile-image');
+                  if (profileImage) {
+                    profileImage.src = downloadURL;
+                    console.log("Profile image updated to URL:", downloadURL);
+                  }
+                  alert('Profile image updated successfully!');
+                })
+                .catch((error) => {
+                  console.error('Error updating profile image:', error);
+                  alert('Error updating profile image: ' + error.message);
+                });
+            });
+          }).catch((error) => {
+            console.error('Error querying document:', error);
+            alert('Error querying document: ' + error.message);
+          });
+        }).catch((error) => {
+          console.error('Error getting download URL:', error);
+        });
+      }
+    );
+  }
+});
+
+document.getElementById('profile-image').addEventListener('click', function () {
+  const fileInput = document.getElementById('file-input');
+  if (fileInput) {
+    fileInput.click();
+  }
+});

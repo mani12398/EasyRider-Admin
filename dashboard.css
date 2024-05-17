@@ -482,6 +482,81 @@ nav.close ~ .dashboard .top {
   }
 }
 
+/*#nameemail {
+  display: flex;
+  flex-direction: column;
+}
+#welcome-message {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+#welcome-message1 {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+.profile-image-container {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+#profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}*/
+#profile-container {
+  display: flex;
+  align-items: center;
+}
+
+.profile-image-container {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 5px;
+}
+
+#profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+#nameemail {
+  margin-right: 10px; /* Adjusted margin for space */
+}
+#welcome-message {
+  font-weight: bold;
+  
+}
+
+#welcome-message {
+  font-size: 16px; /* Adjust font size as needed */
+  color: var(--text-color);
+}
+#welcome-message1 {
+  font-size: 12px; /* Adjust font size as needed */
+  color: var(--text-color);
+}
+@media only screen and (max-width: 600px) {
+  .profile-image-container {
+    width: 40px;
+    height: 40px;
+  }
+
+  #welcome-message {
+    font-size: 14px;
+  }
+
+  #welcome-message1 {
+    font-size: 10px;
+  }
+}
 @media (max-width: 780px) {
   .dash-content .boxes .box {
     width: calc(100% / 2 - 15px);
