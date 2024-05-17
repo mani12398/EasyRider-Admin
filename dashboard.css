@@ -550,11 +550,11 @@ nav.close ~ .dashboard .top {
   }
 
   #welcome-message {
-    font-size: 14px;
+    font-size: 10px;
   }
 
   #welcome-message1 {
-    font-size: 10px;
+    font-size: 08px;
   }
 }
 @media (max-width: 780px) {
