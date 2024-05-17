@@ -10,6 +10,14 @@
       rel="stylesheet"
       href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
     />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <title>Dashboard</title>
   </head>
 
@@ -94,9 +102,9 @@
         <div id="profile-container">
           <div id="nameemail">
             <p id="welcome-message"><span id="username-display"></span></p>
-            <p id="welcome-message1"><span id="username-display1"></span></p>
+            <p id="welcome-message1"><span id="useremail-display"></span></p>
           </div>
-        
+
           <input
             type="file"
             id="file-input"
@@ -112,7 +120,6 @@
             />
           </div>
         </div>
-        
       </div>
 
       <div class="dash-content">
@@ -138,6 +145,7 @@
             <div class="box box3">
               <i class="uil uil-moneybag-alt"></i>
               <span class="text">Total Earnings</span>
+              <span class="number" id="usersCount"></span>
               <span class="number">0</span>
             </div>
           </div>
@@ -157,16 +165,14 @@
                   <th id="roleHeader">Role</th>
                 </tr>
               </thead>
-              <tbody id="userTableBody">
-                <!-- Your table rows will be dynamically added here -->
-              </tbody>
+              <tbody id="userTableBody"></tbody>
             </table>
           </div>
         </div>
       </div>
     </section>
     <script src="search.js"></script>
-    <script type="module" src="logout.js" defer></script>
+    <script type="module" src="dashboard1.js" defer></script>
     <script src="dashboard.js"></script>
   </body>
 </html>

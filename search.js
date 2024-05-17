@@ -19,3 +19,4 @@ function myFunction() {
         tr[i].style.display = rowVisible ? "" : "none";
     }
 }
+
