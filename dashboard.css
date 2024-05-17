@@ -545,8 +545,8 @@ nav.close ~ .dashboard .top {
 }
 @media only screen and (max-width: 600px) {
   .profile-image-container {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
   }
 
   #welcome-message {
