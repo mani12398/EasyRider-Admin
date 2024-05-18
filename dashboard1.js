@@ -16,47 +16,162 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-
+const usersmobCollection = collection(db, 'mobileusers');
 const driverCollection = collection(db, 'drivers');
 const usersCollection = collection(db, 'googleusers');
+const totalearnings = collection(db, 'RideRequest');
 async function getCount(collectionRef) {
   const snapshot = await getDocs(collectionRef);
   return snapshot.size;
+}
+async function getTotalCount(collectionRef1, collectionRef2) {
+  const [count1, count2] = await Promise.all([
+    getCount(collectionRef1),
+    getCount(collectionRef2)
+  ]);
+
+  return count1 + count2;
+}
+getTotalCount(usersmobCollection, usersCollection)
+  .then(totalCount => {
+    console.log(`Total count of documents: ${totalCount}`);
+  })
+  .catch(error => {
+    console.error("Error getting document counts:", error);
+  });
+async function getTotalEarnings(collectionRef) {
+  const snapshot = await getDocs(collectionRef);
+  let totalEarnings = 0;
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    if (data.ridefare) {
+      const ridefare = parseFloat(data.ridefare);
+      totalEarnings += ridefare;
+      console.log(`Adding ridefare: ${ridefare} PKR, Total so far: ${totalEarnings} PKR`);
+    }
+  });
+  console.log(`Final total earnings: ${totalEarnings} PKR`);
+  return totalEarnings;
 }
 async function updateCounts() {
   try {
     const driverCount = await getCount(driverCollection);
     const usersCount = await getCount(usersCollection);
+    const totalEarnings = await getTotalEarnings(totalearnings);
+    const totalusercount = await getTotalCount(usersmobCollection, usersCollection)
     document.getElementById('driverCount').innerText = driverCount.toString();
-    document.getElementById('usersCount').innerText = usersCount.toString();
+    document.getElementById('usersCount').innerText = totalusercount.toString();
+    document.getElementById('totalEarnings').innerText = `${totalEarnings} PKR`;
   } catch (error) {
     console.error('Error getting counts:', error);
   }
 }
 updateCounts();
+
 async function getUserData() {
   try {
     const snapshot = await getDocs(usersCollection);
     const tableBody = document.getElementById('userTableBody');
+
+    // Clear the table body to avoid duplicate entries if this function is called multiple times
+    tableBody.innerHTML = '';
+
     snapshot.forEach((doc) => {
       const data = doc.data();
       const email = data.Email;
       const gender = data.Gender;
       const username = data.Username;
-      const role = data.role;
+      let role = data.role;
+      const phoneno = data.phone;
+      const profileImage = data.Profileimage;
+
+
+      // Log data to check values
+      console.log('User Data:', { email, gender, username, role, phoneno, profileImage });
+
       const row = document.createElement('tr');
+
       const emailCell = document.createElement('td');
       emailCell.textContent = email;
+      row.appendChild(emailCell);
+
       const genderCell = document.createElement('td');
       genderCell.textContent = gender;
+      row.appendChild(genderCell);
+
       const usernameCell = document.createElement('td');
       usernameCell.textContent = username;
+      row.appendChild(usernameCell);
+
       const roleCell = document.createElement('td');
       roleCell.textContent = role;
-      row.appendChild(emailCell);
-      row.appendChild(genderCell);
-      row.appendChild(usernameCell);
       row.appendChild(roleCell);
+
+      const phoneCell = document.createElement('td');
+      phoneCell.textContent = phoneno;
+      row.appendChild(phoneCell);
+
+      const imageCell = document.createElement('td');
+      const img = document.createElement('img');
+      img.src = profileImage || 'images/profile.png'; // Use a default image if profileImage is missing
+      img.alt = `${email}'s profile image`;
+      img.onerror = () => {
+        console.error('Image load error for:', profileImage); // Log error if image fails to load
+        img.src = 'images/profile.png'; // Fallback image if the image fails to load
+      };
+
+      // Add the 'zoomable' class to the image
+      img.classList.add('zoomable');
+
+      // Add a click event listener to the image
+      img.addEventListener('click', function () {
+        const modal = document.createElement('div');
+        modal.classList.add('modal');
+
+        const modalImg = document.createElement('img');
+        modalImg.src = this.src;
+        modalImg.alt = this.alt;
+
+        modal.appendChild(modalImg);
+
+        // Close the modal when clicked outside the image
+        modal.addEventListener('click', function (event) {
+          if (event.target === modal) {
+            modal.remove();
+          }
+        });
+
+        document.body.appendChild(modal);
+      });
+
+      imageCell.appendChild(img);
+      row.appendChild(imageCell);
+
+      // Button to update role
+      const buttonCell = document.createElement('td');
+      const updateButton = document.createElement('button');
+      updateButton.textContent = role === 'Driver' ? 'Driver' : 'User';
+      updateButton.classList.add('button');
+      updateButton.classList.add(role === 'Driver' ? 'button-driver' : 'button-user');
+      updateButton.addEventListener('click', async () => {
+        try {
+          // Toggle between "driver" and "user"
+          role = role === 'User' ? 'Driver' : 'User';
+          await updateDoc(doc.ref, { role });
+
+          // Update the displayed role in the table
+          roleCell.textContent = role;
+
+          // Update button text and style based on role
+          updateButton.textContent = role === 'Driver' ? 'Driver' : 'User';
+          updateButton.classList.remove('button-driver', 'button-user');
+          updateButton.classList.add(role === 'Driver' ? 'button-driver' : 'button-user');
+        } catch (error) {
+          console.error('Error updating role:', error);
+        }
+      });
+      buttonCell.appendChild(updateButton);
+      row.appendChild(buttonCell);
 
       tableBody.appendChild(row);
     });
@@ -64,6 +179,7 @@ async function getUserData() {
     console.error('Error fetching user data:', error);
   }
 }
+
 getUserData();
 
 function redirectToSignIn() {
@@ -105,7 +221,7 @@ window.addEventListener('unload', function () {
 document.addEventListener("DOMContentLoaded", function () {
   console.log('DOM fully loaded and parsed');
 
- 
+
   function getUrlParameter(name) {
     name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
     var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -113,13 +229,13 @@ document.addEventListener("DOMContentLoaded", function () {
     return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' '));
   }
 
- 
+
   function setStoredValue(key, value) {
     localStorage.setItem(key, value);
     console.log(`Stored ${key}:`, value);
   }
 
-  
+
   function getStoredValue(key) {
     const value = localStorage.getItem(key);
     console.log(`Retrieved ${key}:`, value);
@@ -139,7 +255,7 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log('Email from URL:', emailFromUrl);
   console.log('Username from URL:', usernameFromUrl);
 
-  
+
   if (emailFromUrl && usernameFromUrl) {
     setStoredValue('email', emailFromUrl);
     setStoredValue('username', usernameFromUrl);
@@ -148,7 +264,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.error('Email or username not found in URL parameters.');
   }
 
- 
+
   const getProfilePicUrl = async (email) => {
     try {
       console.log('Querying Firestore for email:', email);
@@ -169,7 +285,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
- 
+
   const displayProfilePic = async () => {
     const storedEmail = getStoredValue('email');
     if (storedEmail) {
@@ -184,7 +300,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  
+
   window.onload = function () {
     console.log('Window loaded');
     const storedUsername = getStoredValue('username');
@@ -206,7 +322,7 @@ document.addEventListener("DOMContentLoaded", function () {
 document.getElementById('file-input').addEventListener('change', function (event) {
   const file = event.target.files[0];
   const reader = new FileReader();
-  
+
   reader.onload = function (e) {
     const profileImage = document.getElementById('profile-image');
     if (profileImage) {
@@ -214,18 +330,18 @@ document.getElementById('file-input').addEventListener('change', function (event
       console.log("Local profile image preview set to:", e.target.result);
     }
   };
-  
+
   reader.readAsDataURL(file);
-  
+
   const emailDisplay = document.getElementById('useremail-display');
   if (emailDisplay) {
     const email = emailDisplay.textContent.trim();
     const storageRef = ref(storage, 'profile_images/' + email + '/' + file.name);
     const uploadTask = uploadBytesResumable(storageRef, file);
-    
+
     uploadTask.on('state_changed',
       function (snapshot) {
-        
+
       },
       function (error) {
         console.error('Upload error:', error);
@@ -234,7 +350,7 @@ document.getElementById('file-input').addEventListener('change', function (event
         getDownloadURL(uploadTask.snapshot.ref).then(function (downloadURL) {
           console.log("Download URL for uploaded image:", downloadURL);
           const queryRef = query(collection(db, "admins"), where("email", "==", email));
-          
+
           getDocs(queryRef).then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
               updateDoc(doc.ref, { profileImageUrl: downloadURL })
@@ -249,20 +365,20 @@ document.getElementById('file-input').addEventListener('change', function (event
                     icon: 'success',
                     title: 'Success!',
                     text: 'Profile image updated successfully!',
-                    confirmButtonColor: '#edae10', 
+                    confirmButtonColor: '#edae10',
                     customClass: {
-                      confirmButton: 'swal-confirm-button', 
+                      confirmButton: 'swal-confirm-button',
                     },
                     willOpen: () => {
                       const confirmButton = document.querySelector('.swal-confirm-button');
                       if (confirmButton) {
-                        confirmButton.style.borderColor = '#edae10'; 
-                        confirmButton.style.backgroundColor = '#edae10'; 
-                        confirmButton.style.color = '#000'; 
+                        confirmButton.style.borderColor = '#edae10';
+                        confirmButton.style.backgroundColor = '#edae10';
+                        confirmButton.style.color = '#000';
                       }
                     }
                   });
-                  
+
                 })
                 .catch((error) => {
                   console.error('Error updating profile image:', error);
@@ -287,3 +403,137 @@ document.getElementById('profile-image').addEventListener('click', function () {
     fileInput.click();
   }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+  const img = document.querySelector('.zoomable');
+
+  img.addEventListener('click', function () {
+    const container = document.createElement('div');
+    container.classList.add('image-container');
+    container.appendChild(img.cloneNode(true)); // Clone the clicked image
+    document.body.appendChild(container);
+
+    // Add event listener to remove the zoomed image on click outside
+    container.addEventListener('click', function (event) {
+      if (event.target === container) {
+        container.remove();
+      }
+    });
+
+    // Add class to zoom in the image
+    container.querySelector('img').classList.add('zoomed');
+  });
+});
+
+
+
+async function getUserDatamob() {
+  try {
+    const snapshot = await getDocs(usersmobCollection);
+    const tableBody = document.getElementById('userTableBody1');
+
+    // Clear the table body to avoid duplicate entries if this function is called multiple times
+    tableBody.innerHTML = '';
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const phoneNumber1 = data.phoneNumber;
+      const gender = data.Gender;
+      const username = data.Username;
+      let role = data.role;
+      const profileImage = data.Profileimage;
+
+
+      // Log data to check values
+      console.log('User Data:', { phoneNumber1, gender, username, role , profileImage });
+
+      const row = document.createElement('tr');
+
+      const emailCell = document.createElement('td');
+      emailCell.textContent = phoneNumber1;
+      row.appendChild(emailCell);
+
+      const genderCell = document.createElement('td');
+      genderCell.textContent = gender;
+      row.appendChild(genderCell);
+
+      const usernameCell = document.createElement('td');
+      usernameCell.textContent = username;
+      row.appendChild(usernameCell);
+
+      const roleCell = document.createElement('td');
+      roleCell.textContent = role;
+      row.appendChild(roleCell);
+
+      
+
+      const imageCell = document.createElement('td');
+      const img = document.createElement('img');
+      img.src = profileImage || 'images/profile.png'; // Use a default image if profileImage is missing
+      img.alt = `${phoneNumber1}'s profile image`;
+      img.onerror = () => {
+        console.error('Image load error for:', profileImage); // Log error if image fails to load
+        img.src = 'images/profile.png'; // Fallback image if the image fails to load
+      };
+
+      // Add the 'zoomable' class to the image
+      img.classList.add('zoomable');
+
+      // Add a click event listener to the image
+      img.addEventListener('click', function () {
+        const modal = document.createElement('div');
+        modal.classList.add('modal');
+
+        const modalImg = document.createElement('img');
+        modalImg.src = this.src;
+        modalImg.alt = this.alt;
+
+        modal.appendChild(modalImg);
+
+        // Close the modal when clicked outside the image
+        modal.addEventListener('click', function (event) {
+          if (event.target === modal) {
+            modal.remove();
+          }
+        });
+
+        document.body.appendChild(modal);
+      });
+
+      imageCell.appendChild(img);
+      row.appendChild(imageCell);
+
+      // Button to update role
+      const buttonCell = document.createElement('td');
+      const updateButton = document.createElement('button');
+      updateButton.textContent = role === 'Driver' ? 'Driver' : 'User';
+      updateButton.classList.add('button');
+      updateButton.classList.add(role === 'Driver' ? 'button-driver' : 'button-user');
+      updateButton.addEventListener('click', async () => {
+        try {
+          // Toggle between "driver" and "user"
+          role = role === 'User' ? 'Driver' : 'User';
+          await updateDoc(doc.ref, { role });
+
+          // Update the displayed role in the table
+          roleCell.textContent = role;
+
+          // Update button text and style based on role
+          updateButton.textContent = role === 'Driver' ? 'Driver' : 'User';
+          updateButton.classList.remove('button-driver', 'button-user');
+          updateButton.classList.add(role === 'Driver' ? 'button-driver' : 'button-user');
+        } catch (error) {
+          console.error('Error updating role:', error);
+        }
+      });
+      buttonCell.appendChild(updateButton);
+      row.appendChild(buttonCell);
+
+      tableBody.appendChild(row);
+    });
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+}
+
+getUserDatamob();

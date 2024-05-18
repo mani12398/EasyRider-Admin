@@ -111,47 +111,52 @@
       </div>
 
       <div class="dash-content">
-        <div class="overview">
+        <div class="activity">
           <div class="title">
-            <i class="uil uil-tachometer-fast-alt"></i>
-
-            <span class="text">Dashboard</span>
+            <i class="uil uil-users-alt"></i>
+            <span class="text">Google Users</span>
           </div>
-          <div class="boxes">
-            <div class="box box1">
-              <i class="uil uil-car"></i>
-              <span class="text">Total Drivers</span>
-              <span class="number" id="driverCount">Loading...</span>
-            </div>
-            <div class="box box2">
-              <i class="uil uil-users-alt"></i>
-              <span class="text">Total Users</span>
-              <span class="number" id="usersCount">Loading...</span>
-            </div>
-            <div class="box box3">
-              <i class="uil uil-moneybag-alt"></i>
-              <span class="text">Driver Earnings</span>
-              <span class="number" id="totalEarnings">Loading...</span>
-            </div>
-            <div class="box box4">
-              <i class="uil uil-money-insert"></i>
-              <span class="text">Company Profit</span>
-              <span class="number" id="driverCount">Loading...</span>
-            </div>
+          <div class="table-container">
+            <table id="myTable" class="table">
+              <thead>
+                <tr>
+                  <th id="emailHeader">Email</th>
+                  <th id="genderHeader">Gender</th>
+                  <th id="usernameHeader">Username</th>
+                  <th id="roleHeader">Role</th>
+                  <th id="phoneno">Mobile No</th>
+                  <th id="imageHeader">Profile Picture</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody"></tbody>
+            </table>
           </div>
         </div>
         <div class="activity">
           <div class="title">
-            <i class="uil uil-comparison"></i>
-            <span class="text">Activity Charts</span>
+            <i class="uil uil-users-alt"></i>
+            <span class="text">Phone Users</span>
+          </div>
+          <div class="table-container">
+            <table id="myTable" class="table">
+              <thead>
+                <tr>
+                  <th id="emailHeader">Phone Number</th>
+                  <th id="genderHeader">Gender</th>
+                  <th id="usernameHeader">Username</th>
+                  <th id="roleHeader">Role</th>
+                  <th id="imageHeader">Profile Picture</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody1"></tbody>
+            </table>
           </div>
         </div>
       </div>
     </section>
     <script src="search.js"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script type="module" src="dashboard1.js" defer></script>
     <script src="dashboard.js"></script>
   </body>
