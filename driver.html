@@ -10,7 +10,7 @@
       rel="stylesheet"
       href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
     />
-
+    <link rel="stylesheet" href="driver.css">
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
@@ -109,52 +109,39 @@
           </div>
         </div>
       </div>
-
       <div class="dash-content">
         <div class="activity">
           <div class="title">
             <i class="uil uil-users-alt"></i>
-            <span class="text">Google Users</span>
+            <span class="text">Drivers</span>
           </div>
           <div class="table-container">
             <table id="myTable" class="table">
               <thead>
                 <tr>
+                  <th id="nameHeader">Name</th>
                   <th id="emailHeader">Email</th>
+                  <th id="mobilenoHeader">Mobile No</th>
                   <th id="genderHeader">Gender</th>
-                  <th id="usernameHeader">Username</th>
-                  <th id="roleHeader">Role</th>
-                  <th id="phoneno">Mobile No</th>
-                  <th id="imageHeader">Profile Picture</th>
+                  <th id="userimageHeader">Profile Picture</th>
+                  <th id="cnicHeader">CNIC</th>
+                  <th id="cnicfs">CNIC BS</th>
+                  <th id="cnicbs">CNIC FS</th>
+                  <th id="userimageidHeader">Profile Picture with ID</th>
+                  <th id="vnHeader">Vehicle Name</th>
+                  <th id="vpHeader">Vehicle Photo</th>
+                  <th id="vcfsHeader">Vehicle Card FS</th>
+                  <th id="vcbsHeader">Vehicle Card BS</th>
+                  <th id="dlfs">Driver Licence FS</th>
+                  <th id="dlbs">Driver Licence BS</th>
+                  <th id="imageHeader">Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
-              <tbody id="userTableBody"></tbody>
+              <tbody id="userTableBody2"></tbody>
             </table>
           </div>
         </div>
-        <div class="activity">
-          <div class="title">
-            <i class="uil uil-users-alt"></i>
-            <span class="text">Phone Users</span>
-          </div>
-          <div class="table-container">
-            <table id="myTable" class="table">
-              <thead>
-                <tr>
-                  <th id="emailHeader">Phone Number</th>
-                  <th id="genderHeader">Gender</th>
-                  <th id="usernameHeader">Username</th>
-                  <th id="roleHeader">Role</th>
-                  <th id="imageHeader">Profile Picture</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="userTableBody1"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     </section>
     <script src="search.js"></script>
     <script type="module" src="dashboard1.js" defer></script>

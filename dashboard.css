@@ -365,7 +365,7 @@ nav.close ~ .dashboard .top {
   color: var(--text-color);
 }
 .boxes .box .number {
-  font-size: 33px;
+  font-size: 24px;
   font-weight: 500;
   color: var(--text-color);
 }
@@ -405,65 +405,7 @@ nav.close ~ .dashboard .top {
   color: var(--text-color);
 }
 
-.table-container {
-  width: 100%;
-  max-height: 1000px; /* Adjust the height as needed */
-  overflow: auto;
-}
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  
-}
-
-.table th {
-  font-size: 23px;
-  font-weight: 900;
-  color: var(--logo_name_color);
-  padding: 15px;
-  text-align: justify;
-  margin-bottom: 20px;
-  
-}
-.table img {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 50%;
-  
-}
-.table th, .table td {
-  padding: 5px; /* Adjust padding as needed */
-  border: 0.1px solid #ddd;
-  text-align: center; /* Center the content horizontally */
-  vertical-align: middle; /* Center the content vertically */
-}
-.table td {
-  font-size: 22px;
-  font-weight: 400;
-  color: var(--text-color);
-  padding: 15px;
-  white-space: nowrap;
-  text-align: justify;
- 
-  vertical-align: middle;
-}
-
-.table td:nth-child(2),
-.table td:nth-child(4), /* 4th column for role */
-.table td:nth-child(5),
-.table td:nth-child(6) { /* 5th column for profile image */
-  text-align: center; /* Center the content horizontally */
-  vertical-align: middle; /* Center the content vertically */
-}
-.table tbody tr:nth-child(even) {
-  background-color: transparent;
-}
-
-.table tbody tr {
-  margin-bottom: 20px;
-}
 #profile-container {
   display: flex;
   align-items: center;
@@ -615,16 +557,16 @@ nav.close ~ .dashboard .top {
   font-size: 14px;
   font-weight: bold;
 }
-
-.button-user {
+.button-approved {
   background-color: green;
   color: white;
 }
 
-.button-driver {
+.button-review {
   background-color: red;
   color: white;
 }
+
 .zoomable {
   transition: transform 0.3s ease;
 }
@@ -679,3 +621,75 @@ nav.close ~ .dashboard .top {
   border: 2px solid white; /* Add a border for better visibility */
   border-radius: 5px;
 }
+
+
+
+.table-container {
+  width: 90%;
+  max-height: 500px; /* Adjust the height as needed */
+  overflow: auto;
+  margin: 0 auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  
+}
+
+.table th {
+  font-size: 23px;
+  font-weight: 900;
+  color: var(--logo_name_color);
+  padding: 15px;
+  text-align: center;
+  white-space: nowrap;
+  margin-bottom: 20px;
+  vertical-align: middle;
+}
+.table img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+  
+}
+.table th, .table td {
+  padding: 5px; /* Adjust padding as needed */
+  border: 0.1px solid #ddd;
+  text-align: center; /* Center the content horizontally */
+  vertical-align: middle; /* Center the content vertically */
+}
+.table td {
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text-color);
+  padding: 15px;
+  white-space: nowrap;
+  text-align: justify;
+ 
+  vertical-align: middle;
+}
+
+
+.table td:nth-child(2),
+.table td:nth-child(4), /* 4th column for role */
+.table td:nth-child(5),
+.table td:nth-child(6) { /* 5th column for profile image */
+  text-align: center; /* Center the content horizontally */
+  vertical-align: middle; /* Center the content vertically */
+}
+.table tbody tr:nth-child(even) {
+  background-color: transparent;
+}
+
+.table tbody tr {
+  margin-bottom: 20px;
+}
+
+
+
+
+
+
+

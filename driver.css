@@ -1,0 +1,76 @@
+.table-container {
+    width: 90%;
+    max-height: 500px; /* Adjust the height as needed */
+    overflow: auto;
+    margin: 0 auto;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    
+  }
+  
+  .table th {
+    font-size: 23px;
+    font-weight: 900;
+    color: var(--logo_name_color);
+    padding: 15px;
+    text-align: center;
+    white-space: nowrap;
+    margin-bottom: 20px;
+    vertical-align: middle;
+  }
+  .table img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    
+  }
+  .table th, .table td {
+    padding: 5px; /* Adjust padding as needed */
+    border: 0.1px solid #ddd;
+    text-align: center; /* Center the content horizontally */
+    vertical-align: middle; /* Center the content vertically */
+  }
+  .table td {
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text-color);
+    padding: 15px;
+    white-space: nowrap;
+    text-align: justify;
+   
+    vertical-align: middle;
+  }
+  
+  
+ 
+  /* 4th column for role */
+  .table td:nth-child(3),
+  .table td:nth-child(4),
+  .table td:nth-child(5),
+  .table td:nth-child(6),
+  .table td:nth-child(7),
+  .table td:nth-child(8),
+  .table td:nth-child(9),
+ 
+  .table td:nth-child(11),
+  .table td:nth-child(12),
+  .table td:nth-child(13),
+  .table td:nth-child(14),
+  .table td:nth-child(15),
+  .table td:nth-child(16),
+  .table td:nth-child(17) { /* 5th column for profile image */
+    text-align: center; /* Center the content horizontally */
+    vertical-align: middle; /* Center the content vertically */
+  }
+  .table tbody tr:nth-child(even) {
+    background-color: transparent;
+  }
+  
+  .table tbody tr {
+    margin-bottom: 20px;
+  }
+  

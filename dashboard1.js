@@ -148,7 +148,7 @@ async function getUserData() {
       row.appendChild(imageCell);
 
       // Button to update role
-      const buttonCell = document.createElement('td');
+      /*const buttonCell = document.createElement('td');
       const updateButton = document.createElement('button');
       updateButton.textContent = role === 'Driver' ? 'Driver' : 'User';
       updateButton.classList.add('button');
@@ -171,7 +171,7 @@ async function getUserData() {
         }
       });
       buttonCell.appendChild(updateButton);
-      row.appendChild(buttonCell);
+      row.appendChild(buttonCell);*/
 
       tableBody.appendChild(row);
     });
@@ -445,7 +445,7 @@ async function getUserDatamob() {
 
 
       // Log data to check values
-      console.log('User Data:', { phoneNumber1, gender, username, role , profileImage });
+      console.log('User Data:', { phoneNumber1, gender, username, role, profileImage });
 
       const row = document.createElement('tr');
 
@@ -465,7 +465,7 @@ async function getUserDatamob() {
       roleCell.textContent = role;
       row.appendChild(roleCell);
 
-      
+
 
       const imageCell = document.createElement('td');
       const img = document.createElement('img');
@@ -504,7 +504,7 @@ async function getUserDatamob() {
       row.appendChild(imageCell);
 
       // Button to update role
-      const buttonCell = document.createElement('td');
+      /*const buttonCell = document.createElement('td');
       const updateButton = document.createElement('button');
       updateButton.textContent = role === 'Driver' ? 'Driver' : 'User';
       updateButton.classList.add('button');
@@ -527,7 +527,7 @@ async function getUserDatamob() {
         }
       });
       buttonCell.appendChild(updateButton);
-      row.appendChild(buttonCell);
+      row.appendChild(buttonCell);*/
 
       tableBody.appendChild(row);
     });
@@ -537,3 +537,157 @@ async function getUserDatamob() {
 }
 
 getUserDatamob();
+
+
+
+
+async function getUserDatadriver() {
+  try {
+    const snapshot = await getDocs(driverCollection);
+    const tableBody = document.getElementById('userTableBody2');
+
+
+    tableBody.innerHTML = '';
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const name = data.Name;
+      const email = data.email;
+      const phoneno = data.phone;
+      const gender = data.Gender;
+      const profileImage = data['Basic Info'];
+      const cnic = data.Cnicno;
+      const cnicfs = data['CNIC Frontside'];
+      const cnicbs = data['CNIC Backside'];
+      const userImageID = data['Selfie with ID'];
+      const vehicleName = data.Transportname;
+      const vehiclePhoto = data['Photo of Vehicle'];
+      const vehicleCardFS = data['Vehicle Registration Frontside'];
+      const vehicleCardBS = data['Vehicle Registration Backside'];
+      const driverLicenseFS = data['Driver Licence Frontside'];
+      const driverLicenseBS = data['Driver Licence Backside'];
+      //const docRef = firestore.collection('your_collection').doc('your_document_id');
+      let driverstatus = data.Status;
+      //let driverstatus = "InReview";
+
+      console.log('Driver Data:', {
+        name, email, phoneno, gender,
+        profileImage, cnic, cnicfs, cnicbs, userImageID,
+        vehicleName, vehiclePhoto, vehicleCardFS, vehicleCardBS,
+        driverLicenseFS, driverLicenseBS, driverstatus
+      });
+
+      const row = document.createElement('tr');
+
+      const nameCell = document.createElement('td');
+      nameCell.textContent = name;
+      row.appendChild(nameCell);
+
+      const emailCell = document.createElement('td');
+      emailCell.textContent = email;
+      row.appendChild(emailCell);
+
+      const phoneCell = document.createElement('td');
+      phoneCell.textContent = phoneno;
+      row.appendChild(phoneCell);
+
+      const genderCell = document.createElement('td');
+      genderCell.textContent = gender;
+      row.appendChild(genderCell);
+
+      const createImageCell = (imageUrl, altText, fallbackImage = 'images/profile.png') => {
+        const cell = document.createElement('td');
+        const img = document.createElement('img');
+        img.src = imageUrl || fallbackImage;
+        img.alt = altText;
+        img.onerror = () => {
+          console.error('Image load error for:', imageUrl);
+          img.src = fallbackImage;
+        };
+        img.classList.add('zoomable');
+        img.addEventListener('click', function () {
+          const modal = document.createElement('div');
+          modal.classList.add('modal');
+          const modalImg = document.createElement('img');
+          modalImg.src = this.src;
+          modalImg.alt = this.alt;
+          modal.appendChild(modalImg);
+          modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+              modal.remove();
+            }
+          });
+          document.body.appendChild(modal);
+        });
+        cell.appendChild(img);
+        return cell;
+      };
+
+      row.appendChild(createImageCell(profileImage, `${email}'s profile image`));
+
+      const cnicCell = document.createElement('td');
+      cnicCell.textContent = cnic;
+      row.appendChild(cnicCell);
+
+      row.appendChild(createImageCell(cnicfs, `${email}'s CNIC Frontside`));
+      row.appendChild(createImageCell(cnicbs, `${email}'s CNIC Backside`));
+      row.appendChild(createImageCell(userImageID, `${email}'s Selfie with ID`));
+
+      const vehCell = document.createElement('td');
+      vehCell.textContent = vehicleName;
+      row.appendChild(vehCell);
+
+      row.appendChild(createImageCell(vehiclePhoto, `${email}'s Vehicle Photo`));
+      row.appendChild(createImageCell(vehicleCardFS, `${email}'s Vehicle Registration Frontside`));
+      row.appendChild(createImageCell(vehicleCardBS, `${email}'s Vehicle Registration Backside`));
+      row.appendChild(createImageCell(driverLicenseFS, `${email}'s Driver Licence Frontside`));
+      row.appendChild(createImageCell(driverLicenseBS, `${email}'s Driver Licence Backside`));
+
+     
+
+      
+
+     
+      const statusCell = document.createElement('td');
+      statusCell.textContent = driverstatus;
+      row.appendChild(statusCell);
+
+      
+      
+
+      const buttonCell = document.createElement('td');
+      const updateButton = document.createElement('button');
+      updateButton.textContent = driverstatus === 'Approved' ? 'Approved' : 'InReview';
+      updateButton.classList.add('button');
+      updateButton.classList.add(driverstatus === 'Approved' ? 'button-approved' : 'button-review');
+      updateButton.addEventListener('click', async () => {
+        try {
+          console.log('Before update - driverstatus:', driverstatus); // Add this line
+
+          driverstatus = driverstatus === 'InReview' ? 'Approved' : 'InReview';
+          await updateDoc(doc.ref, { Status: driverstatus });
+          statusCell.textContent = driverstatus;
+
+          updateButton.textContent = driverstatus === 'Approved' ? 'Approved' : 'InReview';
+          updateButton.classList.remove('button-approved', 'button-review');
+          updateButton.classList.add(driverstatus === 'Approved' ? 'button-approved' : 'button-review');
+
+          console.log('After update - driverstatus:', driverstatus); // Add this line
+        } catch (error) {
+          console.error('Error updating status:', error);
+        }
+      });
+      buttonCell.appendChild(updateButton);
+      row.appendChild(buttonCell);
+
+     
+
+
+      tableBody.appendChild(row);
+    });
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+}
+
+getUserDatadriver();
