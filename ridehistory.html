@@ -9,10 +9,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
   <link rel="stylesheet" href="dashboard.css" />
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
-  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"/>
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="driver.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
   <link rel="stylesheet" href="ridehist.css" />
 </head>
 
@@ -75,12 +75,7 @@
       <i class="uil uil-bars sidebar-toggle"></i>
       <div class="search-box">
         <i class="uil uil-search"></i>
-        <input
-          id="searchInput"
-          onkeyup="myFunction()"
-          type="text"
-          placeholder="Search..."
-        />
+        <input id="searchInput" onkeyup="myFunction()" type="text" placeholder="Search..." />
       </div>
       <div id="profile-container">
         <div id="nameemail">
@@ -88,19 +83,9 @@
           <p id="welcome-message1"><span id="useremail-display"></span></p>
         </div>
 
-        <input
-          type="file"
-          id="file-input"
-          accept="image/*"
-          style="display: none"
-        />
+        <input type="file" id="file-input" accept="image/*" style="display: none" />
         <div class="profile-image-container">
-          <img
-            id="profile-image"
-            src="images/profile.png"
-            alt="Profile Image"
-            style="cursor: pointer"
-          />
+          <img id="profile-image" src="images/profile.png" alt="Profile Image" style="cursor: pointer" />
         </div>
       </div>
     </div>
@@ -111,10 +96,10 @@
           <span class="text">Ride History</span>
         </div>
         <div id="rideRequests"></div>
-        </div>
       </div>
+    </div>
   </section>
-  
+
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -200,22 +185,28 @@
           // Define icon and color based on status
           let icon = "";
           let color = "";
-          if (
-            rideRequestData.Status === "Completed" ||
-            rideRequestData.Status === "Accepted"
-          ) {
+          let textColor = "";
+
+          if (rideRequestData.Status === "Completed" || rideRequestData.Status === "Accepted") {
             icon = "<i class='fas fa-check-circle'></i>"; // Checkmark
             color = "green";
+            textColor = "green";
           } else if (rideRequestData.Status === "Cancelled") {
             icon = "<i class='fas fa-times-circle'></i>"; // Cross
             color = "red";
+            textColor = "red";
+          } else {
+            // Handle other statuses if needed
+            icon = "<i class='fas fa-question-circle'></i>"; // Question mark for unknown status
+            color = "grey";
+            textColor = "grey";
           }
 
           const rideRequestInfo = `
     <div class="ride-request">
         <div class="status-container">
             <div class="status-icon" style="color: ${color};">${icon}</div>
-            <h3 class="status-text">${rideRequestData.Status}</h3>
+            <h3 class="status-text" style="color: ${textColor};">${rideRequestData.Status}</h3>
         </div>
         <div class="ride-info">
             <h3>${formattedDateTime}</h3>
