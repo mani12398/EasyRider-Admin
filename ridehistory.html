@@ -219,19 +219,34 @@
         </div>
         <div class="ride-info">
             <h3>${formattedDateTime}</h3>
-            <h3>Ride Fare: ${rideRequestData.ridefare
+            <h3 style="color: green;">${rideRequestData.ridefare
               ? " PKR " + rideRequestData.ridefare
               : "N/A"
             }</h3>
-            <p>Driver Name: ${rideRequestData.drivername || "N/A"}</p>
-            <p>Pickup Location: ${rideRequestData.pickup_address || "N/A"}</p>
-            <p>Dropoff Location: ${rideRequestData.destination_address || "N/A"
-            }</p>
-            <p>Vehicle Name: ${rideRequestData.carname || "N/A"}</p>
-            <p>Passenger Name: ${rideRequestData.rider_name || "N/A"}</p>
+            <p>
+              <i class="fas fa-user-tie" style="color: green; margin-right: 8px;"></i>
+              <strong></strong> ${rideRequestData.drivername || "N/A"}
+            </p>
+            <p>
+              <i class="fas fa-map-marker-alt" style="color: green; margin-right: 8px;"></i>
+              <strong></strong> ${rideRequestData.pickup_address || "N/A"}
+            </p>
+            <p>
+              <i class="fas fa-map-marker-alt" style="color: red; margin-right: 8px;"></i>
+              <strong></strong> ${rideRequestData.destination_address || "N/A"}
+            </p>
+            <p>
+              <i class="fas fa-car" style="color: #edae10; margin-right: 8px;"></i>
+              <strong></strong> ${rideRequestData.carname || "N/A"}
+            </p>
+            <p>
+              <i class="fas fa-user" style="color: #edae10; margin-right: 8px;"></i>
+              <strong></strong> ${rideRequestData.rider_name || "N/A"}
+            </p>
         </div>
     </div>
 `;
+
           rideRequestsDiv.innerHTML += rideRequestInfo;
         });
 
