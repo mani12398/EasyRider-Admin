@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="driver.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"/>
+  <link rel="stylesheet" href="ridehist.css" />
+</head>
+
+<body>
+  <nav>
+    <div class="logo-name">
+      <div class="logo-image">
+        <img src="images/bg1.png" alt="" />
+      </div>
+      <span class="logo_name">EasyRider</span>
+    </div>
+    <div class="menu-items">
+      <ul class="nav-links">
+        <li>
+          <a href="dashboard.html">
+            <i class="uil uil-estate"></i>
+            <span class="link-name">Dahsboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="users.html">
+            <i class="uil uil-users-alt"></i>
+            <span class="link-name">Users</span>
+          </a>
+        </li>
+        <li>
+          <a href="driver.html">
+            <i class="uil uil-car"></i>
+            <span class="link-name">Drivers</span>
+          </a>
+        </li>
+        <li>
+          <a href="ridehistory.html">
+            <i class="uil uil-history"></i>
+            <span class="link-name">Ride History</span>
+          </a>
+        </li>
+      </ul>
+      <ul class="logout-mode">
+        <li>
+          <a id="signOutButton" href="#">
+            <i class="uil uil-signout"></i>
+            <span class="link-name">Logout</span>
+          </a>
+        </li>
+        <li class="mode">
+          <a href="#">
+            <i class="uil uil-moon"></i>
+            <span class="link-name">Dark Mode</span>
+          </a>
+          <div class="mode-toggle">
+            <span class="switch"></span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <section class="dashboard">
+    <div class="top">
+      <i class="uil uil-bars sidebar-toggle"></i>
+      <div class="search-box">
+        <i class="uil uil-search"></i>
+        <input
+          id="searchInput"
+          onkeyup="myFunction()"
+          type="text"
+          placeholder="Search..."
+        />
+      </div>
+      <div id="profile-container">
+        <div id="nameemail">
+          <p id="welcome-message"><span id="username-display"></span></p>
+          <p id="welcome-message1"><span id="useremail-display"></span></p>
+        </div>
+
+        <input
+          type="file"
+          id="file-input"
+          accept="image/*"
+          style="display: none"
+        />
+        <div class="profile-image-container">
+          <img
+            id="profile-image"
+            src="images/profile.png"
+            alt="Profile Image"
+            style="cursor: pointer"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="dash-content">
+      <div class="activity">
+        <div class="title">
+          <i class="uil uil-history"></i>
+          <span class="text">Ride History</span>
+        </div>
+        <div id="rideRequests"></div>
+        </div>
+      </div>
+  </section>
+  
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
+  <!-- Your JavaScript code -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCOgAUgsl-fy02IVYVMO2cO8UCzJWQLygY",
+      authDomain: "ridemate-7d7f7.firebaseapp.com",
+      projectId: "ridemate-7d7f7",
+      storageBucket: "ridemate-7d7f7.appspot.com",
+      messagingSenderId: "701088545317",
+      appId: "1:701088545317:android:861041c2d3f6072f799dcc",
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    async function fetchRideRequests() {
+      try {
+        console.log("Fetching drivers...");
+        const driversSnapshot = await firebase
+          .firestore()
+          .collection("drivers")
+          .get();
+        console.log("Drivers fetched:", driversSnapshot.docs.length);
+
+        const rideRequestsDiv = document.getElementById("rideRequests");
+        rideRequestsDiv.innerHTML = ""; // Clear any previous content
+
+        // Fetch RideRequest documents where driverid matches any driver document ID
+        const driverIds = driversSnapshot.docs.map((doc) => doc.id);
+        console.log("Driver IDs:", driverIds);
+
+        console.log("Fetching ride requests...");
+        const rideRequestsSnapshot = await firebase
+          .firestore()
+          .collection("RideRequest")
+          .where("driverid", "in", driverIds)
+          .get();
+        console.log(
+          "Ride requests fetched:",
+          rideRequestsSnapshot.docs.length
+        );
+
+        rideRequestsSnapshot.forEach((rideRequestDoc) => {
+          const rideRequestData = rideRequestDoc.data();
+          console.log("Processing ride request:", rideRequestDoc.id);
+
+          // Convert timestamp to a Date object
+          const createdAt = rideRequestData.created_at.toDate();
+
+          // Format date
+          const months = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ];
+          const formattedDate = `${createdAt.getDate()}-${months[createdAt.getMonth()]
+            }-${createdAt.getFullYear()}`;
+
+          // Format time
+          let hours = createdAt.getHours();
+          const ampm = hours >= 12 ? "PM" : "AM";
+          hours = hours % 12;
+          hours = hours ? hours : 12; // Handle midnight (0 hours)
+          const minutes = createdAt.getMinutes();
+          const formattedTime = `${(hours < 10 ? "0" : "") + hours}:${(minutes < 10 ? "0" : "") + minutes
+            } ${ampm}`;
+
+          // Construct formatted date and time string
+          const formattedDateTime = `${formattedDate} ${formattedTime}`;
+
+          // Define icon and color based on status
+          let icon = "";
+          let color = "";
+          if (
+            rideRequestData.Status === "Completed" ||
+            rideRequestData.Status === "Accepted"
+          ) {
+            icon = "<i class='fas fa-check-circle'></i>"; // Checkmark
+            color = "green";
+          } else if (rideRequestData.Status === "Cancelled") {
+            icon = "<i class='fas fa-times-circle'></i>"; // Cross
+            color = "red";
+          }
+
+          const rideRequestInfo = `
+    <div class="ride-request">
+        <div class="status-container">
+            <div class="status-icon" style="color: ${color};">${icon}</div>
+            <h3 class="status-text">${rideRequestData.Status}</h3>
+        </div>
+        <div class="ride-info">
+            <h3>${formattedDateTime}</h3>
+            <h3>Ride Fare: ${rideRequestData.ridefare
+              ? " PKR " + rideRequestData.ridefare
+              : "N/A"
+            }</h3>
+            <p>Driver Name: ${rideRequestData.drivername || "N/A"}</p>
+            <p>Pickup Location: ${rideRequestData.pickup_address || "N/A"}</p>
+            <p>Dropoff Location: ${rideRequestData.destination_address || "N/A"
+            }</p>
+            <p>Vehicle Name: ${rideRequestData.carname || "N/A"}</p>
+            <p>Passenger Name: ${rideRequestData.rider_name || "N/A"}</p>
+        </div>
+    </div>
+`;
+          rideRequestsDiv.innerHTML += rideRequestInfo;
+        });
+
+        console.log("Ride requests processed.");
+      } catch (error) {
+        console.error("Error fetching documents: ", error);
+      }
+    }
+
+    // Call the function to fetch and display ride requests
+    fetchRideRequests();
+  </script>
+  <script src="search.js"></script>
+  <script type="module" src="dashboard1.js" defer></script>
+  <script src="dashboard.js"></script>
+</body>
+
+</html>
