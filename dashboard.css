@@ -788,6 +788,20 @@ nav.close ~ .dashboard .top {
 .updateButton:hover {
   background-color: #45a049;
 }
+
+@media screen and (max-width: 600px) {
+  .dataItem {
+    margin-bottom: 10px;
+  }
+  
+  .updateButton {
+    width: 100%; /* Set button width to full width on smaller screens */
+    max-width: none; /* Remove max-width for button on smaller screens */
+  }
+}
+
+
+
 .centeredContainer {
   display: flex;
   justify-content: center;
