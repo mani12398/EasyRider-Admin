@@ -794,3 +794,14 @@ nav.close ~ .dashboard .top {
   align-items: center;
   position: relative; /* Ensure relative positioning */
 }
+#chart-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  max-width: 1000px;
+}
+canvas {
+  max-width: 400px;
+  max-height: 400px;
+}

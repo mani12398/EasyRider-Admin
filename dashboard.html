@@ -151,11 +151,233 @@
             <i class="uil uil-comparison"></i>
             <span class="text">Activity Charts</span>
           </div>
+          <div id="chart-container">
+            <!-- Create canvas elements for the charts -->
+            <canvas id="rideRequestChart"></canvas>
+            <canvas id="combinedChart"></canvas>
+          </div>
+
+          <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+          <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+          <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+          <script>
+            // Initialize Firebase
+            const firebaseConfig = {
+              apiKey: "AIzaSyCOgAUgsl-fy02IVYVMO2cO8UCzJWQLygY",
+              authDomain: "ridemate-7d7f7.firebaseapp.com",
+              projectId: "ridemate-7d7f7",
+              storageBucket: "ridemate-7d7f7.appspot.com",
+              messagingSenderId: "701088545317",
+              appId: "1:701088545317:android:861041c2d3f6072f799dcc",
+            };
+            firebase.initializeApp(firebaseConfig);
+
+            // Get a reference to the Firestore service
+            const db = firebase.firestore();
+
+            // Function to fetch data from Firebase and create ride request chart
+            function fetchAndCreateRideRequestChart() {
+              const rideRequestsRef = db.collection("RideRequest");
+
+              console.log("Fetching ride request data from Firebase...");
+              rideRequestsRef
+                .get()
+                .then((querySnapshot) => {
+                  console.log("Data fetched successfully.");
+                  let completedCount = 0;
+                  let cancelledCount = 0;
+
+                  querySnapshot.forEach((doc) => {
+                    const status = doc.data().Status; // Assuming 'Status' is the field you want to count
+                    if (status === "Completed") {
+                      completedCount++;
+                    } else if (status === "Cancelled") {
+                      cancelledCount++;
+                    }
+                  });
+
+                  const totalCount = querySnapshot.size; // Total count of documents
+
+                  console.log("Completed count:", completedCount);
+                  console.log("Cancelled count:", cancelledCount);
+                  console.log("Total count:", totalCount);
+
+                  // Prepare data for Chart.js
+                  const labels = [
+                    "Completed Rides",
+                    "Cancelled Rides",
+                    "Total Rides",
+                  ];
+                  const data = [completedCount, cancelledCount, totalCount];
+
+                  // Create the ride request pie chart
+                  const ctx = document
+                    .getElementById("rideRequestChart")
+                    .getContext("2d");
+                  const chart = new Chart(ctx, {
+                    type: "pie",
+                    data: {
+                      labels: labels,
+                      datasets: [
+                        {
+                          label: "Ride Request Status",
+                          data: data,
+                          backgroundColor: [
+                            "rgba(75, 192, 192, 0.2)",
+                            "rgba(255, 99, 132, 0.2)",
+                            "rgba(255, 206, 86, 0.2)",
+                          ],
+                          borderColor: [
+                            "rgba(75, 192, 192, 1)",
+                            "rgba(255, 99, 132, 1)",
+                            "rgba(255, 206, 86, 1)",
+                          ],
+                          borderWidth: 1,
+                        },
+                      ],
+                    },
+                    options: {
+                      responsive: true,
+                      plugins: {
+                        legend: {
+                          position: "top",
+                          labels: {
+                            color: "#edae10", // Set text color for legend labels
+                          },
+                        },
+                        tooltip: {
+                          callbacks: {
+                            label: function (context) {
+                              const label = context.label || "";
+                              const value = context.raw || 0;
+                              return `${label}: ${value}`;
+                            },
+                          },
+                        },
+                      },
+                      animation: {
+                        animateScale: true,
+                        animateRotate: true,
+                      },
+                    },
+                  });
+
+                  console.log("Pie chart created successfully.");
+                })
+                .catch((error) => {
+                  console.error("Error fetching documents: ", error);
+                });
+            }
+
+            // Function to fetch data from Firebase and create combined chart
+            function fetchAndCreateCombinedChart() {
+              const driversRef = db.collection("drivers");
+              const companyProfitRef = db.collection("companyprofit");
+
+              console.log("Fetching data from Firebase...");
+              Promise.all([driversRef.get(), companyProfitRef.get()])
+                .then((snapshots) => {
+                  const driverEarnings = snapshots[0].docs.map(
+                    (doc) => doc.data().driverearnings || 0
+                  );
+
+                  // Sum up all company profits from chargedprofit array in companyprofit collection
+                  const companyProfitData = snapshots[1].docs.reduce(
+                    (acc, doc) => {
+                      const chargedProfit = doc.data().chargedprofit || [];
+                      const sum = chargedProfit.reduce(
+                        (sum, item) => sum + item.companyprofit,
+                        0
+                      );
+                      acc.push(sum);
+                      return acc;
+                    },
+                    []
+                  );
+
+                  // Hardcoded labels for days of the week
+                  const labels = [
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                    "Sunday",
+                  ];
+
+                  // Create the combined chart
+                  // Create the combined chart
+                  const ctx = document
+                    .getElementById("combinedChart")
+                    .getContext("2d");
+                  const chart = new Chart(ctx, {
+                    type: "bar",
+                    data: {
+                      labels: labels,
+                      datasets: [
+                        {
+                          label: "Driver Earnings",
+                          data: driverEarnings,
+                          backgroundColor: "rgba(54, 162, 235, 0.5)",
+                          borderColor: "rgba(54, 162, 235, 1)",
+                          borderWidth: 1,
+                        },
+                        {
+                          label: "Company Profit",
+                          data: companyProfitData,
+                          backgroundColor: "rgba(255, 99, 132, 0.5)",
+                          borderColor: "rgba(255, 99, 132, 1)",
+                          borderWidth: 1,
+                        },
+                      ],
+                    },
+                    options: {
+                      responsive: true,
+                      plugins: {
+                        legend: {
+                          position: "top",
+                          labels: {
+                            color: "#edae10", // Set text color for legend labels
+                          },
+                        },
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          ticks: {
+                            color: "#edae10", // Set text color for y-axis ticks
+                          },
+                          grid: {
+                            display: false, // Hide y-axis grid lines
+                          },
+                        },
+                        x: {
+                          ticks: {
+                            color: "#edae10", // Set text color for x-axis ticks
+                          },
+                          grid: {
+                            display: false, // Hide x-axis grid lines
+                          },
+                        },
+                      },
+                    },
+                  });
+
+                  console.log("Combined chart created successfully.");
+                })
+                .catch((error) => {
+                  console.error("Error fetching documents: ", error);
+                });
+            }
+            fetchAndCreateCombinedChart();
+            fetchAndCreateRideRequestChart();
+          </script>
         </div>
       </div>
     </section>
     <script src="search.js"></script>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script type="module" src="dashboard1.js" defer></script>
