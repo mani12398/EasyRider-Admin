@@ -805,3 +805,13 @@ canvas {
   max-width: 400px;
   max-height: 400px;
 }
+@media screen and (max-width: 600px) {
+  #chart-container {
+    flex-direction: column; /* Stack items vertically on smaller screens */
+  }
+
+  /* Add margin between items */
+  #chart-container > * {
+    margin-bottom: 10px; /* Adjust the amount of space as needed */
+  }
+}
