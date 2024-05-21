@@ -828,4 +828,9 @@ canvas {
   #chart-container > * {
     margin-bottom: 10px; /* Adjust the amount of space as needed */
   }
+  canvas {
+    width: 100%; /* Set charts to take full width of their container */
+    max-width: none; /* Remove max-width for responsiveness */
+    max-height: 1100px; /* Limit max-height if needed */
+  }
 }
