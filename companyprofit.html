@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <link rel="stylesheet" href="dashboard.css" />
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="driver.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+    />
+    <link rel="stylesheet" href="ridehist.css" />
+  </head>
+
+  <body>
+    <nav>
+      <div class="logo-name">
+        <div class="logo-image">
+          <img src="images/bg1.png" alt="" />
+        </div>
+        <span class="logo_name">EasyRider</span>
+      </div>
+      <div class="menu-items">
+        <ul class="nav-links">
+          <li>
+            <a href="dashboard.html">
+              <i class="uil uil-estate"></i>
+              <span class="link-name">Dahsboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="users.html">
+              <i class="uil uil-users-alt"></i>
+              <span class="link-name">Users</span>
+            </a>
+          </li>
+          <li>
+            <a href="driver.html">
+              <i class="uil uil-car"></i>
+              <span class="link-name">Drivers</span>
+            </a>
+          </li>
+          <li>
+            <a href="ridehistory.html">
+              <i class="uil uil-history"></i>
+              <span class="link-name">Ride History</span>
+            </a>
+          </li>
+          <li>
+            <a href="companyprofit.html">
+              <i class="uil uil-money-insert"></i>
+              <span class="link-name">Company Earnings</span>
+            </a>
+          </li>
+        </ul>
+        <ul class="logout-mode">
+          <li>
+            <a id="signOutButton" href="#">
+              <i class="uil uil-signout"></i>
+              <span class="link-name">Logout</span>
+            </a>
+          </li>
+          <li class="mode">
+            <a href="#">
+              <i class="uil uil-moon"></i>
+              <span class="link-name">Dark Mode</span>
+            </a>
+            <div class="mode-toggle">
+              <span class="switch"></span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <section class="dashboard">
+      <div class="top">
+        <i class="uil uil-bars sidebar-toggle"></i>
+        <div class="search-box">
+          <i class="uil uil-search"></i>
+          <input
+            id="searchInput"
+            onkeyup="filterRideRequests()"
+            type="text"
+            placeholder="Search..."
+          />
+        </div>
+        <div id="profile-container">
+          <div id="nameemail">
+            <p id="welcome-message"><span id="username-display"></span></p>
+            <p id="welcome-message1"><span id="useremail-display"></span></p>
+          </div>
+
+          <input
+            type="file"
+            id="file-input"
+            accept="image/*"
+            style="display: none"
+          />
+          <div class="profile-image-container">
+            <img
+              id="profile-image"
+              src="images/profile.png"
+              alt="Profile Image"
+              style="cursor: pointer"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="dash-content">
+        <div class="activity">
+          <div class="title">
+            <i class="uil uil-money-insert"></i>
+            <span class="text">Company Earnings</span>
+          </div>
+          <div id="dataContainer"></div>
+        </div>
+      </div>
+    </section>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script>
+      // Initialize Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyCOgAUgsl-fy02IVYVMO2cO8UCzJWQLygY",
+        authDomain: "ridemate-7d7f7.firebaseapp.com",
+        projectId: "ridemate-7d7f7",
+        storageBucket: "ridemate-7d7f7.appspot.com",
+        messagingSenderId: "701088545317",
+        appId: "1:701088545317:android:861041c2d3f6072f799dcc",
+      };
+    
+      firebase.initializeApp(firebaseConfig);
+    
+      // Get a reference to the Firestore service
+      const db = firebase.firestore();
+    
+      // Function to fetch data and populate the container
+      async function fetchDataAndPopulateContainer() {
+        const dataContainer = document.getElementById("dataContainer");
+        dataContainer.innerHTML = ""; // Clear existing data
+    
+        let hasUnpaid = false;
+    
+        try {
+          const querySnapshot = await db.collection("companyprofit").get();
+    
+          for (const doc of querySnapshot.docs) {
+            const data = doc.data();
+            const chargedProfitArray = data.chargedprofit; // Access the chargedprofit array
+    
+            for (const chargedProfit of chargedProfitArray) {
+              if (chargedProfit.paystatus === "unpaid") {
+                hasUnpaid = true; // Set the flag if an unpaid status is found
+                const rideRequestId = chargedProfit.rideid;
+                const requestDoc = await db
+                  .collection("RideRequest")
+                  .where("driverid", "==", doc.id)
+                  .get();
+    
+                if (!requestDoc.empty) {
+                  const userData = requestDoc.docs[0].data();
+                  const dataItem = document.createElement("div");
+                  dataItem.className = "dataItem";
+    
+                  const rideIdField = document.createElement("div");
+                  rideIdField.className = "dataField";
+                  rideIdField.innerHTML = `<i class="fas fa-id-badge" style="color:#007791;"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">Ride ID:</span> ${chargedProfit.rideid}`;
+                  dataItem.appendChild(rideIdField);
+    
+                  const driverNameField = document.createElement("div");
+                  driverNameField.className = "dataField";
+                  driverNameField.innerHTML = `<i class="fas fa-user" style="color:#edae10;"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">Driver Name:</span> ${userData.drivername}`;
+                  dataItem.appendChild(driverNameField);
+    
+                  const companyProfitField = document.createElement("div");
+                  companyProfitField.className = "dataField";
+                  companyProfitField.innerHTML = `<i class="fas fa-chart-line" style="color:green;"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold; color:green;">Company Profit:</span> <span style="color:green;">${chargedProfit.companyprofit}</span>`;
+                  dataItem.appendChild(companyProfitField);
+    
+                  const payStatusField = document.createElement("div");
+                  payStatusField.className = "dataField";
+                  payStatusField.innerHTML = `<i class="fas fa-money-check-alt"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">Pay Status:</span> <span style="color:${
+                    chargedProfit.paystatus === "unpaid" ? "red" : "#333"
+                  };">${chargedProfit.paystatus}</span>`;
+                  dataItem.appendChild(payStatusField);
+    
+                  dataContainer.appendChild(dataItem);
+                } else {
+                  console.log(
+                    `RideRequest document with driverid ${doc.id} does not exist.`
+                  );
+                }
+              }
+            }
+          }
+    
+          if (hasUnpaid) {
+          // Append the update button only if there are unpaid statuses
+          const divElement = document.createElement("div");
+
+          // Create the updateButton
+          const updateButton = document.createElement("button");
+          updateButton.textContent = "Pay";
+          updateButton.className = "updateButton";
+          updateButton.onclick = updatePayStatus;
+
+          // Append the updateButton to the div element
+          divElement.appendChild(updateButton);
+
+          // Append the div element to the dataContainer
+          dataContainer.appendChild(divElement);
+          
+          // Show the container if there are unpaid statuses
+          dataContainer.style.display = "block;";
+        } else {
+          // Hide the container if there are no unpaid statuses
+          dataContainer.style.display = "none";
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+      
+    
+      // Function to update pay status
+      async function updatePayStatus() {
+        try {
+          const querySnapshot = await db.collection("companyprofit").get();
+    
+          for (const doc of querySnapshot.docs) {
+            const data = doc.data();
+            const chargedProfitArray = data.chargedprofit; // Access the chargedprofit array
+    
+            let isUpdated = false;
+            for (const chargedProfit of chargedProfitArray) {
+              if (chargedProfit.paystatus === "unpaid") {
+                chargedProfit.paystatus = "paid";
+                isUpdated = true;
+              }
+            }
+    
+            if (isUpdated) {
+              // Update the document in Firestore
+              await db.collection("companyprofit").doc(doc.id).update({
+                chargedprofit: chargedProfitArray,
+              });
+            }
+          }
+    
+          // Refresh the container after updating the pay status
+          fetchDataAndPopulateContainer();
+        } catch (error) {
+          console.error("Error updating pay status:", error);
+        }
+      }
+    
+      // Call the function to fetch data and populate the container
+      fetchDataAndPopulateContainer();
+    </script>
+    <script src="search.js"></script>
+    <script type="module" src="dashboard1.js" defer></script>
+    <script src="dashboard.js"></script>
+  </body>
+</html>

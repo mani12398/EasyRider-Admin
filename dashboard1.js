@@ -17,6 +17,7 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 const usersmobCollection = collection(db, 'mobileusers');
+const companyprofit1 = collection(db, 'companyprofit');
 const driverCollection = collection(db, 'drivers');
 const usersCollection = collection(db, 'googleusers');
 const totalearnings = collection(db, 'RideRequest');
@@ -44,8 +45,8 @@ async function getTotalEarnings(collectionRef) {
   let totalEarnings = 0;
   snapshot.forEach((doc) => {
     const data = doc.data();
-    if (data.ridefare) {
-      const ridefare = parseFloat(data.ridefare);
+    if (data.driverearnings) {
+      const ridefare = parseFloat(data.driverearnings);
       totalEarnings += ridefare;
       console.log(`Adding ridefare: ${ridefare} PKR, Total so far: ${totalEarnings} PKR`);
     }
@@ -53,15 +54,65 @@ async function getTotalEarnings(collectionRef) {
   console.log(`Final total earnings: ${totalEarnings} PKR`);
   return totalEarnings;
 }
+
+
+/*async function getTotalEarnings1(collectionRef) {
+  const snapshot = await getDocs(collectionRef);
+  let totalEarnings = 0;
+
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    if (data.chargedprofit && Array.isArray(data.chargedprofit)) {
+      data.chargedprofit.forEach((profit) => {
+        if (profit.companyprofit) {
+          const ridefare = parseFloat(profit.companyprofit);
+          totalEarnings += ridefare;
+          console.log(`Adding ridefare: ${ridefare} PKR, Total so far: ${totalEarnings} PKR`);
+        }
+      });
+    }
+  });
+
+  console.log(`Final total earnings: ${totalEarnings} PKR`);
+  return totalEarnings;
+}*/
+
+async function getTotalEarnings1(collectionRef) {
+  const snapshot = await getDocs(collectionRef);
+  let totalEarnings = 0;
+
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    if (data.chargedprofit && Array.isArray(data.chargedprofit)) {
+      data.chargedprofit.forEach((profit) => {
+        if (profit.companyprofit && profit.paystatus) {
+          if (profit.paystatus === 'paid') {
+            const ridefare = parseFloat(profit.companyprofit);
+            totalEarnings += ridefare;
+            console.log(`Adding ridefare: ${ridefare} PKR, Total so far: ${totalEarnings} PKR`);
+          } else if (profit.paystatus === 'unpaid') {
+            console.log(`Skipping unpaid ridefare: ${parseFloat(profit.companyprofit)} PKR`);
+          }
+        }
+      });
+    }
+  });
+
+  console.log(`Final total earnings: ${totalEarnings} PKR`);
+  return totalEarnings;
+}
+
 async function updateCounts() {
   try {
     const driverCount = await getCount(driverCollection);
     const usersCount = await getCount(usersCollection);
-    const totalEarnings = await getTotalEarnings(totalearnings);
+    const totalEarnings = await getTotalEarnings(driverCollection);
+    const compprof = await getTotalEarnings1(companyprofit1);
     const totalusercount = await getTotalCount(usersmobCollection, usersCollection)
     document.getElementById('driverCount').innerText = driverCount.toString();
     document.getElementById('usersCount').innerText = totalusercount.toString();
     document.getElementById('totalEarnings').innerText = `${totalEarnings} PKR`;
+    document.getElementById('companyprofit').innerText = `${compprof} PKR`;
   } catch (error) {
     console.error('Error getting counts:', error);
   }
@@ -643,29 +694,56 @@ async function getUserDatadriver() {
       row.appendChild(createImageCell(driverLicenseFS, `${email}'s Driver Licence Frontside`));
       row.appendChild(createImageCell(driverLicenseBS, `${email}'s Driver Licence Backside`));
 
-     
 
-      
 
-     
+
+
+
       const statusCell = document.createElement('td');
       statusCell.textContent = driverstatus;
       row.appendChild(statusCell);
 
-      
-      
+
+
 
       const buttonCell = document.createElement('td');
       const updateButton = document.createElement('button');
       updateButton.textContent = driverstatus === 'Approved' ? 'Approved' : 'InReview';
       updateButton.classList.add('button');
       updateButton.classList.add(driverstatus === 'Approved' ? 'button-approved' : 'button-review');
+      /*updateButton.addEventListener('click', async () => {
+        try {
+          console.log('Before update - driverstatus:', driverstatus); // Add this line
+          
+          driverstatus = driverstatus === 'InReview' ? 'Approved' : 'InReview';
+          await updateDoc(doc.ref, { Status: driverstatus });
+          statusCell.textContent = driverstatus;
+         
+          updateButton.textContent = driverstatus === 'Approved' ? 'Approved' : 'InReview';
+          updateButton.classList.remove('button-approved', 'button-review');
+          updateButton.classList.add(driverstatus === 'Approved' ? 'button-approved' : 'button-review');
+
+          console.log('After update - driverstatus:', driverstatus); // Add this line
+        } catch (error) {
+          console.error('Error updating status:', error);
+        }
+      });*/
       updateButton.addEventListener('click', async () => {
         try {
           console.log('Before update - driverstatus:', driverstatus); // Add this line
 
+          // Save the previous status to determine whether to clear the message field
+          const previousStatus = driverstatus;
+
           driverstatus = driverstatus === 'InReview' ? 'Approved' : 'InReview';
-          await updateDoc(doc.ref, { Status: driverstatus });
+          const updateData = { Status: driverstatus };
+
+          // Clear the 'message' field in Firestore if status changes to 'Approved'
+          if (previousStatus === 'InReview' && driverstatus === 'Approved') {
+            updateData.message = ''; // Assuming 'message' is the field you want to clear
+          }
+
+          await updateDoc(doc.ref, updateData);
           statusCell.textContent = driverstatus;
 
           updateButton.textContent = driverstatus === 'Approved' ? 'Approved' : 'InReview';
@@ -677,10 +755,231 @@ async function getUserDatadriver() {
           console.error('Error updating status:', error);
         }
       });
+
       buttonCell.appendChild(updateButton);
       row.appendChild(buttonCell);
 
-     
+
+
+      /*const messageInputCell = document.createElement('td');
+      const messageInput = document.createElement('input');
+      messageInput.type = 'text';
+      messageInput.placeholder = 'Enter message';
+      messageInput.style.transition = 'width 0.3s ease'; // Add transition for smooth animation
+
+      // Function to enlarge the input field
+      function enlargeInput() {
+        messageInput.style.width = '300px';
+        messageInput.style.borderColor = '#007bff'; // Change the width to a larger value
+      }
+
+      // Function to shrink the input field
+      function shrinkInput() {
+        messageInput.style.width = '';
+        messageInput.style.borderColor = '#007bff'; // Reset the width to its default value
+      }
+
+      // Add event listeners
+      messageInput.addEventListener('focus', enlargeInput); // Enlarge when clicked
+      document.body.addEventListener('click', function (event) {
+        if (!messageInputCell.contains(event.target)) {
+          shrinkInput(); // Shrink when clicked outside of the input field
+        }
+      });
+
+      messageInputCell.appendChild(messageInput);
+      row.appendChild(messageInputCell);*/
+
+      const messageInputCell = document.createElement('td');
+      const messageInput = document.createElement('input');
+      messageInput.type = 'text';
+      messageInput.placeholder = 'Enter message';
+      messageInput.style.transition = 'width 0.3s ease'; // Add transition for smooth animation
+
+      // Function to enlarge the input field and change border color on focus
+      function enlargeInput() {
+        messageInput.style.width = '300px'; // Change the width to a larger value
+        //messageInput.style.borderColor = '#007bff'; // Change border color when focused
+      }
+
+      // Function to shrink the input field and reset border color
+      function shrinkInput() {
+        messageInput.style.width = ''; // Reset the width to its default value
+        //messageInput.style.borderColor = '#EDAE10'; // Reset border color
+      }
+
+      // Add event listeners
+      messageInput.addEventListener('focus', enlargeInput); // Enlarge when clicked
+      messageInput.addEventListener('blur', shrinkInput); // Shrink when focus is lost
+
+      messageInputCell.appendChild(messageInput);
+      row.appendChild(messageInputCell);
+
+
+
+
+      /*const saveButtonCell = document.createElement('td');
+      const saveButton = document.createElement('button');
+      saveButton.textContent = 'Sent Message';
+      saveButton.classList.add('save-message-button');
+      saveButton.addEventListener('click', async () => {
+        const message = messageInput.value;
+        if (message) {
+          try {
+            await updateDoc(doc.ref, { message: message });
+            Swal.fire({
+              icon: 'success',
+              title: 'Success!',
+              text: 'Message sent successfully!',
+              confirmButtonColor: '#edae10',
+              customClass: {
+                confirmButton: 'swal-confirm-button',
+              },
+              willOpen: () => {
+                const confirmButton = document.querySelector('.swal-confirm-button');
+                if (confirmButton) {
+                  confirmButton.style.borderColor = '#edae10';
+                  confirmButton.style.backgroundColor = '#edae10';
+                  confirmButton.style.color = '#000';
+                }
+              }
+            });
+          } catch (error) {
+            console.error('Error saving message:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Error sending message. Please try again.',
+              confirmButtonColor: '#edae10',
+              customClass: {
+                confirmButton: 'swal-confirm-button',
+              },
+              willOpen: () => {
+                const confirmButton = document.querySelector('.swal-confirm-button');
+                if (confirmButton) {
+                  confirmButton.style.borderColor = '#edae10';
+                  confirmButton.style.backgroundColor = '#edae10';
+                  confirmButton.style.color = '#000';
+                }
+              }
+            });
+          }
+        } else {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Please enter a message.',
+            confirmButtonColor: '#edae10',
+            customClass: {
+              confirmButton: 'swal-confirm-button',
+            },
+            willOpen: () => {
+              const confirmButton = document.querySelector('.swal-confirm-button');
+              if (confirmButton) {
+                confirmButton.style.borderColor = '#edae10';
+                confirmButton.style.backgroundColor = '#edae10';
+                confirmButton.style.color = '#000';
+              }
+            }
+          });
+        }
+      });
+      saveButtonCell.appendChild(saveButton);
+      row.appendChild(saveButtonCell);*/
+      const saveButtonCell = document.createElement('td');
+      const saveButton = document.createElement('button');
+      saveButton.textContent = 'Send Message';
+      saveButton.classList.add('save-message-button');
+      saveButton.addEventListener('click', async () => {
+        const message = messageInput.value;
+        if (message) {
+          try {
+            // Fetch the current status from Firestore
+            const docSnapshot = await getDoc(doc.ref);
+            const currentStatus = docSnapshot.data().Status;
+
+            // Check if the current status is 'Approved'
+            if (currentStatus === 'InReview') {
+              await updateDoc(doc.ref, { message: message });
+              messageInput.value = '';
+              Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Message sent successfully!',
+                confirmButtonColor: '#edae10',
+                customClass: {
+                  confirmButton: 'swal-confirm-button',
+                },
+                willOpen: () => {
+                  const confirmButton = document.querySelector('.swal-confirm-button');
+                  if (confirmButton) {
+                    confirmButton.style.borderColor = '#edae10';
+                    confirmButton.style.backgroundColor = '#edae10';
+                    confirmButton.style.color = '#000';
+                  }
+                }
+              });
+            } else {
+              Swal.fire({
+                icon: 'warning',
+                title: 'Oops...',
+                text: 'Message can only be sent when status is InReview.',
+                confirmButtonColor: '#edae10',
+                customClass: {
+                  confirmButton: 'swal-confirm-button',
+                },
+                willOpen: () => {
+                  const confirmButton = document.querySelector('.swal-confirm-button');
+                  if (confirmButton) {
+                    confirmButton.style.borderColor = '#edae10';
+                    confirmButton.style.backgroundColor = '#edae10';
+                    confirmButton.style.color = '#000';
+                  }
+                }
+              });
+            }
+          } catch (error) {
+            console.error('Error saving message:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Error sending message. Please try again.',
+              confirmButtonColor: '#edae10',
+              customClass: {
+                confirmButton: 'swal-confirm-button',
+              },
+              willOpen: () => {
+                const confirmButton = document.querySelector('.swal-confirm-button');
+                if (confirmButton) {
+                  confirmButton.style.borderColor = '#edae10';
+                  confirmButton.style.backgroundColor = '#edae10';
+                  confirmButton.style.color = '#000';
+                }
+              }
+            });
+          }
+        } else {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Please enter a message.',
+            confirmButtonColor: '#edae10',
+            customClass: {
+              confirmButton: 'swal-confirm-button',
+            },
+            willOpen: () => {
+              const confirmButton = document.querySelector('.swal-confirm-button');
+              if (confirmButton) {
+                confirmButton.style.borderColor = '#edae10';
+                confirmButton.style.backgroundColor = '#edae10';
+                confirmButton.style.color = '#000';
+              }
+            }
+          });
+        }
+      });
+      saveButtonCell.appendChild(saveButton);
+      row.appendChild(saveButtonCell);
 
 
       tableBody.appendChild(row);
@@ -691,4 +990,91 @@ async function getUserDatadriver() {
 }
 
 getUserDatadriver();
+
+
+
+
+
+
+
+
+// Define the chart data and update function
+let chartData = {
+  labels: ['Google Users', 'Drivers', 'Mobile Users'],
+  datasets: [{
+    data: [],
+    backgroundColor: ['#be2490', '#7868e6', '#ffc107'],
+    hoverBorderWidth: 2,
+    hoverBorderColor: '#000',
+    fontWeight: 'bold'
+  }]
+};
+
+// Function to update chart with new data
+function updateChart(googleUsersCount, driversCount, mobileUsersCount) {
+  chartData.datasets[0].data = [googleUsersCount, driversCount, mobileUsersCount];
+  console.log("Data updated:", chartData.datasets[0].data);
+  chart.update();
+}
+
+// Function to fetch data from Firebase
+function fetchDataFromFirebase() {
+  console.log("Fetching data from Firebase...");
+  const googleUsersRef = collection(db, 'googleUsers');
+  const driversRef = collection(db, 'drivers');
+  const mobileUsersRef = collection(db, 'mobileUsers');
+
+  // Get counts for each collection
+  const googleUsersCountPromise = getDocs(googleUsersRef).then(querySnapshot => querySnapshot.size);
+  const driversCountPromise = getDocs(driversRef).then(querySnapshot => querySnapshot.size);
+  const mobileUsersCountPromise = getDocs(mobileUsersRef).then(querySnapshot => querySnapshot.size);
+
+  // Wait for all promises to resolve
+  Promise.all([googleUsersCountPromise, driversCountPromise, mobileUsersCountPromise])
+    .then(counts => {
+      const [googleUsersCount, driversCount, mobileUsersCount] = counts;
+      console.log("Data fetched:", googleUsersCount, driversCount, mobileUsersCount);
+      // Update the chart with fetched data
+      updateChart(googleUsersCount, driversCount, mobileUsersCount);
+    })
+    .catch(error => {
+      console.error("Error getting document counts:", error);
+    });
+}
+
+// Execute when DOM is loaded
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("DOM content loaded");
+
+  // Check if the chart canvas element exists
+  let ctx = document.getElementById('myChart');
+  if (!ctx) {
+    console.error("Chart canvas element not found!");
+    return;
+  }
+
+  // Get the 2d context of the canvas
+  ctx = ctx.getContext('2d');
+
+  // Check if the context is obtained successfully
+  if (!ctx) {
+    console.error("Failed to obtain 2d context for chart canvas!");
+    return;
+  }
+
+  // Create new chart
+  let chart = new Chart(ctx, {
+    type: 'pie',
+    data: chartData
+  });
+
+  // Check if the chart is created successfully
+  if (!chart) {
+    console.error("Failed to create chart instance!");
+    return;
+  }
+
+  // Call the function to initially fetch and update data
+  fetchDataFromFirebase();
+});
 

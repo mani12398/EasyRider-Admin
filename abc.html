@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Data Chart</title>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <!-- Create a canvas element for the chart -->
+    <canvas id="driverChart" width="800" height="400"></canvas>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: 'AIzaSyCOgAUgsl-fy02IVYVMO2cO8UCzJWQLygY',
+            authDomain: 'ridemate-7d7f7.firebaseapp.com',
+            projectId: 'ridemate-7d7f7',
+            storageBucket: 'ridemate-7d7f7.appspot.com',
+            messagingSenderId: '701088545317',
+            appId: '1:701088545317:android:861041c2d3f6072f799dcc',
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // Get a reference to the Firestore service
+        const db = firebase.firestore();
+
+        // Function to fetch data from Firebase and create chart
+        function fetchAndCreateChart() {
+            const driversRef = db.collection('googleusers');
+
+            console.log("Fetching data from Firebase...");
+            driversRef.get().then((querySnapshot) => {
+                console.log("Data fetched successfully.");
+                const driverData = [];
+                querySnapshot.forEach((doc) => {
+                    const driver = doc.data();
+                    driverData.push(driver.Username); // Assuming 'Username' is the field you want to count
+                });
+
+                console.log("Driver data:", driverData);
+
+                // Count occurrences of each driver name
+                const counts = {};
+                driverData.forEach((name) => {
+                    counts[name] = (counts[name] || 0) + 1;
+                });
+
+                console.log("Counts:", counts);
+
+                // Prepare data for Chart.js
+                const labels = Object.keys(counts);
+                const data = Object.values(counts);
+
+                // Create the chart
+                const ctx = document.getElementById('driverChart').getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Driver Count',
+                            data: data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                console.log("Chart created successfully.");
+            }).catch((error) => {
+                console.error("Error fetching documents: ", error);
+            });
+        }
+
+        // Call the function to fetch data and create the chart
+        fetchAndCreateChart();
+    </script>
+</body>
+
+</html>

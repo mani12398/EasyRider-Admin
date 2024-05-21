@@ -557,6 +557,8 @@ nav.close ~ .dashboard .top {
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
+  text-align: center;
+  
 }
 .button-approved {
   background-color: green;
@@ -752,5 +754,43 @@ nav.close ~ .dashboard .top {
 
 
 
-
-
+#dataContainer {
+  margin-top: 20px;
+  padding: 10px;
+  border: 2px solid #edae10;
+  border-radius: 5px;
+  display: inline-block;
+  
+}
+.dataItem {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #edae10;
+  border-radius: 5px;
+  color: var(--text-color);
+}
+.dataField {
+  margin: 5px 0;
+}
+.updateButton {
+  margin-top: 20px;
+  padding: 10px;
+  font-size: 24px;
+  height: 50px;
+  width: 300px; /* Increase font size */
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+}
+.updateButton:hover {
+  background-color: #45a049;
+}
+.centeredContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; /* Ensure relative positioning */
+}

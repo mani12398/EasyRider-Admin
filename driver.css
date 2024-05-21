@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&display=swap");
+
 .table-container {
     width: 90%;
     max-height: 500px; /* Adjust the height as needed */
@@ -62,7 +64,9 @@
   .table td:nth-child(14),
   .table td:nth-child(15),
   .table td:nth-child(16),
-  .table td:nth-child(17) { /* 5th column for profile image */
+  .table td:nth-child(17),
+  .table td:nth-child(18),
+  .table td:nth-child(19) { /* 5th column for profile image */
     text-align: center; /* Center the content horizontally */
     vertical-align: middle; /* Center the content vertically */
   }
@@ -73,4 +77,31 @@
   .table tbody tr {
     margin-bottom: 20px;
   }
+  input[type="text"] {
+    width: 200px; /* Initial width */
+    padding: 10px;
+    box-sizing: border-box;
+    border: 3px solid #EDAE10; /* Default border color */
+    border-radius: 5px;
+    transition: width 0.3s ease, border-color 0.3s ease; /* Transition for width and border-color */
+  }
   
+ 
+  
+ 
+  
+  button {
+    padding: 10px 10px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #088F8F;
+    font-weight: bold;
+    color: white;
+  }
+/* CSS for the row */
+.row {
+  display: flex;
+  justify-content: center;
+}

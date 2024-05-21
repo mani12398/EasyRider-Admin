@@ -50,6 +50,12 @@
             <span class="link-name">Ride History</span>
           </a>
         </li>
+        <li>
+          <a href="companyprofit.html">
+            <i class="uil uil-money-insert"></i>
+            <span class="link-name">Company Earnings</span>
+          </a>
+        </li>
       </ul>
       <ul class="logout-mode">
         <li>
@@ -75,7 +81,7 @@
       <i class="uil uil-bars sidebar-toggle"></i>
       <div class="search-box">
         <i class="uil uil-search"></i>
-        <input id="searchInput" onkeyup="myFunction()" type="text" placeholder="Search..." />
+        <input id="searchInput" onkeyup="filterRideRequests()" type="text" placeholder="Search..." />
       </div>
       <div id="profile-container">
         <div id="nameemail">
@@ -249,6 +255,26 @@
 
     // Call the function to fetch and display ride requests
     fetchRideRequests();
+
+    function filterRideRequests() {
+      var input, filter, rideRequests, rideRequest, rideRequestInfo, i, txtValue;
+      input = document.getElementById("searchInput");
+      filter = input.value.toUpperCase();
+      rideRequests = document.querySelectorAll(".ride-request");
+
+      rideRequests.forEach(function (rideRequest) {
+        rideRequestInfo = rideRequest.textContent || rideRequest.innerText;
+        if (rideRequestInfo.toUpperCase().indexOf(filter) > -1) {
+          rideRequest.style.display = "";
+        } else {
+          rideRequest.style.display = "none";
+        }
+      });
+
+    }
+
+
+
   </script>
   <script src="search.js"></script>
   <script type="module" src="dashboard1.js" defer></script>
