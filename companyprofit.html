@@ -141,26 +141,26 @@
         messagingSenderId: "701088545317",
         appId: "1:701088545317:android:861041c2d3f6072f799dcc",
       };
-    
+
       firebase.initializeApp(firebaseConfig);
-    
+
       // Get a reference to the Firestore service
       const db = firebase.firestore();
-    
+
       // Function to fetch data and populate the container
       async function fetchDataAndPopulateContainer() {
         const dataContainer = document.getElementById("dataContainer");
         dataContainer.innerHTML = ""; // Clear existing data
-    
+
         let hasUnpaid = false;
-    
+
         try {
           const querySnapshot = await db.collection("companyprofit").get();
-    
+
           for (const doc of querySnapshot.docs) {
             const data = doc.data();
             const chargedProfitArray = data.chargedprofit; // Access the chargedprofit array
-    
+
             for (const chargedProfit of chargedProfitArray) {
               if (chargedProfit.paystatus === "unpaid") {
                 hasUnpaid = true; // Set the flag if an unpaid status is found
@@ -169,34 +169,34 @@
                   .collection("RideRequest")
                   .where("driverid", "==", doc.id)
                   .get();
-    
+
                 if (!requestDoc.empty) {
                   const userData = requestDoc.docs[0].data();
                   const dataItem = document.createElement("div");
                   dataItem.className = "dataItem";
-    
+
                   const rideIdField = document.createElement("div");
                   rideIdField.className = "dataField";
                   rideIdField.innerHTML = `<i class="fas fa-id-badge" style="color:#007791;"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">Ride ID:</span> ${chargedProfit.rideid}`;
                   dataItem.appendChild(rideIdField);
-    
+
                   const driverNameField = document.createElement("div");
                   driverNameField.className = "dataField";
                   driverNameField.innerHTML = `<i class="fas fa-user" style="color:#edae10;"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">Driver Name:</span> ${userData.drivername}`;
                   dataItem.appendChild(driverNameField);
-    
+
                   const companyProfitField = document.createElement("div");
                   companyProfitField.className = "dataField";
                   companyProfitField.innerHTML = `<i class="fas fa-chart-line" style="color:green;"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold; color:green;">Company Profit:</span> <span style="color:green;">${chargedProfit.companyprofit}</span>`;
                   dataItem.appendChild(companyProfitField);
-    
+
                   const payStatusField = document.createElement("div");
                   payStatusField.className = "dataField";
                   payStatusField.innerHTML = `<i class="fas fa-money-check-alt"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">Pay Status:</span> <span style="color:${
                     chargedProfit.paystatus === "unpaid" ? "red" : "#333"
                   };">${chargedProfit.paystatus}</span>`;
                   dataItem.appendChild(payStatusField);
-    
+
                   dataContainer.appendChild(dataItem);
                 } else {
                   console.log(
@@ -206,44 +206,59 @@
               }
             }
           }
-    
+
           if (hasUnpaid) {
-          // Append the update button only if there are unpaid statuses
-          const divElement = document.createElement("div");
+            // Append the update button only if there are unpaid statuses
+            const divElement = document.createElement("div");
 
-          // Create the updateButton
-          const updateButton = document.createElement("button");
-          updateButton.textContent = "Pay";
-          updateButton.className = "updateButton";
-          updateButton.onclick = updatePayStatus;
+            // Create the updateButton
+            const updateButton = document.createElement("button");
+            updateButton.textContent = "Pay";
+            updateButton.className = "updateButton";
+            updateButton.onclick = updatePayStatus;
 
-          // Append the updateButton to the div element
-          divElement.appendChild(updateButton);
+            // Append the updateButton to the div element
+            divElement.appendChild(updateButton);
 
-          // Append the div element to the dataContainer
-          dataContainer.appendChild(divElement);
-          
-          // Show the container if there are unpaid statuses
-          dataContainer.style.display = "block;";
-        } else {
-          // Hide the container if there are no unpaid statuses
-          dataContainer.style.display = "none";
+            // Append the div element to the dataContainer
+            dataContainer.appendChild(divElement);
+
+            // Show the container if there are unpaid statuses
+            dataContainer.style.display = "block;";
+          } else {
+            // Hide the container if there are no unpaid statuses
+            dataContainer.style.display = "none";
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
       }
-    }
-      
-    
+
+      function filterRideRequests() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toUpperCase();
+        const rideRequests = document.querySelectorAll(".dataItem"); // Use the 'dataItem' class to select all data items
+
+        rideRequests.forEach(function (rideRequest) {
+          const rideRequestInfo =
+            rideRequest.textContent || rideRequest.innerText;
+          if (rideRequestInfo.toUpperCase().indexOf(filter) > -1) {
+            rideRequest.style.display = "";
+          } else {
+            rideRequest.style.display = "none";
+          }
+        });
+      }
+
       // Function to update pay status
       async function updatePayStatus() {
         try {
           const querySnapshot = await db.collection("companyprofit").get();
-    
+
           for (const doc of querySnapshot.docs) {
             const data = doc.data();
             const chargedProfitArray = data.chargedprofit; // Access the chargedprofit array
-    
+
             let isUpdated = false;
             for (const chargedProfit of chargedProfitArray) {
               if (chargedProfit.paystatus === "unpaid") {
@@ -251,7 +266,7 @@
                 isUpdated = true;
               }
             }
-    
+
             if (isUpdated) {
               // Update the document in Firestore
               await db.collection("companyprofit").doc(doc.id).update({
@@ -259,14 +274,14 @@
               });
             }
           }
-    
+
           // Refresh the container after updating the pay status
           fetchDataAndPopulateContainer();
         } catch (error) {
           console.error("Error updating pay status:", error);
         }
       }
-    
+
       // Call the function to fetch data and populate the container
       fetchDataAndPopulateContainer();
     </script>
