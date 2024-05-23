@@ -66,7 +66,8 @@
   .table td:nth-child(16),
   .table td:nth-child(17),
   .table td:nth-child(18),
-  .table td:nth-child(19) { /* 5th column for profile image */
+  .table td:nth-child(19),
+  .table td:nth-child(20) { /* 5th column for profile image */
     text-align: center; /* Center the content horizontally */
     vertical-align: middle; /* Center the content vertically */
   }

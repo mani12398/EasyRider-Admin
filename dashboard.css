@@ -834,3 +834,13 @@ canvas {
     max-height: 1100px; /* Limit max-height if needed */
   }
 }
+
+/* CSS */
+.rating-cell {
+   /* Align text and icon vertically */
+  gap: 5px; /* Adjust the space between text and icon */
+}
+
+.gold-star {
+  color: goldenrod; /* Set the color of the stars to goldenrod */
+}

@@ -492,6 +492,7 @@ async function getUserDatamob() {
       const gender = data.Gender;
       const username = data.Username;
       let role = data.role;
+      const email = data.email;
       const profileImage = data.Profileimage;
 
 
@@ -516,7 +517,9 @@ async function getUserDatamob() {
       roleCell.textContent = role;
       row.appendChild(roleCell);
 
-
+      const email1Cell = document.createElement('td');
+      email1Cell.textContent = email;
+      row.appendChild(email1Cell);
 
       const imageCell = document.createElement('td');
       const img = document.createElement('img');
@@ -617,6 +620,7 @@ async function getUserDatadriver() {
       const vehicleCardBS = data['Vehicle Registration Backside'];
       const driverLicenseFS = data['Driver Licence Frontside'];
       const driverLicenseBS = data['Driver Licence Backside'];
+      //const ratings = data.driverating;
       //const docRef = firestore.collection('your_collection').doc('your_document_id');
       let driverstatus = data.Status;
       //let driverstatus = "InReview";
@@ -693,6 +697,41 @@ async function getUserDatadriver() {
       row.appendChild(createImageCell(vehicleCardBS, `${email}'s Vehicle Registration Backside`));
       row.appendChild(createImageCell(driverLicenseFS, `${email}'s Driver Licence Frontside`));
       row.appendChild(createImageCell(driverLicenseBS, `${email}'s Driver Licence Backside`));
+
+
+      //const ratings = data.driverating;
+      //const ratings = parseFloat(data.driverating);
+      const ratings = parseFloat(data.driverating);
+      const fullStars = Math.floor(ratings);
+      const halfStar = ratings % 1 !== 0;
+
+      const ratCell = document.createElement('td');
+
+      // Set the text content before appending the icons, and add a space after the text
+      ratCell.textContent = ratings + ' ';
+
+      // Add a class to the rating cell for styling
+      ratCell.classList.add('rating-cell');
+
+      // Add full stars
+      for (let i = 0; i < fullStars; i++) {
+        const starIcon = document.createElement('i');
+        starIcon.classList.add('uil', 'uil-star', 'gold-star'); // Adding 'gold-star' class for styling
+        ratCell.appendChild(starIcon);
+      }
+
+      // Add half star if applicable
+      if (halfStar) {
+        const halfStarIcon = document.createElement('i');
+        halfStarIcon.classList.add('uil', 'uil-star-half-alt', 'gold-star'); // Adding 'gold-star' class for styling
+        ratCell.appendChild(halfStarIcon);
+      }
+
+      row.appendChild(ratCell);
+
+
+
+
 
 
 
