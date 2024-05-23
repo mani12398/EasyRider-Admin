@@ -133,7 +133,7 @@ async function getUserData() {
       const gender = data.Gender;
       const username = data.Username;
       let role = data.role;
-      const phoneno = data.phone;
+      const phoneno = data.mobileno;
       const profileImage = data.Profileimage;
 
 
