@@ -114,6 +114,7 @@
 
   <!-- Your JavaScript code -->
   <script>
+    
     const firebaseConfig = {
       apiKey: "AIzaSyCOgAUgsl-fy02IVYVMO2cO8UCzJWQLygY",
       authDomain: "ridemate-7d7f7.firebaseapp.com",
@@ -201,6 +202,7 @@
             icon = "<i class='fas fa-times-circle'></i>"; // Cross
             color = "red";
             textColor = "red";
+            rideRequestData.ridefare = 0;
           } else {
             // Handle other statuses if needed
             icon = "<i class='fas fa-question-circle'></i>"; // Question mark for unknown status
@@ -216,10 +218,7 @@
         </div>
         <div class="ride-info">
             <h3>${formattedDateTime}</h3>
-            <h3 style="color: green;">${rideRequestData.ridefare
-              ? " PKR " + rideRequestData.ridefare
-              : "N/A"
-            }</h3>
+            <h3 style="color: green;">${rideRequestData.ridefare !== undefined ? " PKR " + rideRequestData.ridefare : " PKR 0"}</h3>
             <p>
               <i class="fas fa-user-tie" style="color: green; margin-right: 8px;"></i>
               <strong></strong> ${rideRequestData.drivername || "N/A"}
@@ -274,7 +273,8 @@
 
     }
 
-
+    
+  
 
   </script>
   <script src="search.js"></script>

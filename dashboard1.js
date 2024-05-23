@@ -615,6 +615,7 @@ async function getUserDatadriver() {
       const cnicbs = data['CNIC Backside'];
       const userImageID = data['Selfie with ID'];
       const vehicleName = data.Transportname;
+      const vehicleNumber = data.Vehicle_Number;
       const vehiclePhoto = data['Photo of Vehicle'];
       const vehicleCardFS = data['Vehicle Registration Frontside'];
       const vehicleCardBS = data['Vehicle Registration Backside'];
@@ -691,6 +692,10 @@ async function getUserDatadriver() {
       const vehCell = document.createElement('td');
       vehCell.textContent = vehicleName;
       row.appendChild(vehCell);
+
+      const vehnumCell = document.createElement('td');
+      vehnumCell.textContent = vehicleNumber;
+      row.appendChild(vehnumCell);
 
       row.appendChild(createImageCell(vehiclePhoto, `${email}'s Vehicle Photo`));
       row.appendChild(createImageCell(vehicleCardFS, `${email}'s Vehicle Registration Frontside`));
