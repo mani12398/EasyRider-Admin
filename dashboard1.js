@@ -133,7 +133,7 @@ async function getUserData() {
       const gender = data.Gender;
       const username = data.Username;
       let role = data.role;
-      const phoneno = data.mobileno;
+      const phoneno = data.phoneNumber;
       const profileImage = data.Profileimage;
 
 
@@ -492,7 +492,7 @@ async function getUserDatamob() {
       const gender = data.Gender;
       const username = data.Username;
       let role = data.role;
-      const email = data.email;
+      const email1 = data.Email;
       const profileImage = data.Profileimage;
 
 
@@ -518,7 +518,7 @@ async function getUserDatamob() {
       row.appendChild(roleCell);
 
       const email1Cell = document.createElement('td');
-      email1Cell.textContent = email;
+      email1Cell.textContent = email1;
       row.appendChild(email1Cell);
 
       const imageCell = document.createElement('td');
@@ -606,8 +606,8 @@ async function getUserDatadriver() {
     snapshot.forEach((doc) => {
       const data = doc.data();
       const name = data.Name;
-      const email = data.email;
-      const phoneno = data.phone;
+      const email = data.Email;
+      const phoneno = data.Phonenumber;
       const gender = data.Gender;
       const profileImage = data['Basic Info'];
       const cnic = data.Cnicno;
