@@ -29,7 +29,7 @@
         <li>
           <a href="dashboard.html">
             <i class="uil uil-estate"></i>
-            <span class="link-name">Dahsboard</span>
+            <span class="link-name">Dashboard</span>
           </a>
         </li>
         <li>
@@ -106,7 +106,6 @@
     </div>
   </section>
 
-
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -114,7 +113,6 @@
 
   <!-- Your JavaScript code -->
   <script>
-    
     const firebaseConfig = {
       apiKey: "AIzaSyCOgAUgsl-fy02IVYVMO2cO8UCzJWQLygY",
       authDomain: "ridemate-7d7f7.firebaseapp.com",
@@ -126,138 +124,170 @@
     firebase.initializeApp(firebaseConfig);
 
     async function fetchRideRequests() {
-      try {
-        console.log("Fetching drivers...");
-        const driversSnapshot = await firebase
-          .firestore()
-          .collection("drivers")
-          .get();
-        console.log("Drivers fetched:", driversSnapshot.docs.length);
+  try {
+    console.log("Fetching drivers...");
+    const driversSnapshot = await firebase.firestore().collection("drivers").get();
+    console.log("Drivers fetched:", driversSnapshot.docs.length);
 
-        const rideRequestsDiv = document.getElementById("rideRequests");
-        rideRequestsDiv.innerHTML = ""; // Clear any previous content
+    const rideRequestsDiv = document.getElementById("rideRequests");
+    rideRequestsDiv.innerHTML = ""; // Clear any previous content
 
-        // Fetch RideRequest documents where driverid matches any driver document ID
-        const driverIds = driversSnapshot.docs.map((doc) => doc.id);
-        console.log("Driver IDs:", driverIds);
+    const driverIds = driversSnapshot.docs.map((doc) => doc.id);
+    console.log("Driver IDs:", driverIds);
 
-        console.log("Fetching ride requests...");
-        const rideRequestsSnapshot = await firebase
-          .firestore()
-          .collection("RideRequest")
-          .where("driverid", "in", driverIds)
-          .get();
-        console.log(
-          "Ride requests fetched:",
-          rideRequestsSnapshot.docs.length
-        );
+    console.log("Fetching ride requests...");
+    const rideRequestsSnapshot = await firebase.firestore().collection("RideRequest").where("driverid", "in", driverIds).get();
+    console.log("Ride requests fetched:", rideRequestsSnapshot.docs.length);
 
-        rideRequestsSnapshot.forEach((rideRequestDoc) => {
-          const rideRequestData = rideRequestDoc.data();
-          console.log("Processing ride request:", rideRequestDoc.id);
+    for (const rideRequestDoc of rideRequestsSnapshot.docs) {
+      const rideRequestData = rideRequestDoc.data();
+      console.log("Processing ride request:", rideRequestDoc.id);
 
-          // Convert timestamp to a Date object
-          const createdAt = rideRequestData.created_at.toDate();
+      const createdAt = rideRequestData.created_at.toDate();
 
-          // Format date
-          const months = [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-          ];
-          const formattedDate = `${createdAt.getDate()}-${months[createdAt.getMonth()]
-            }-${createdAt.getFullYear()}`;
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const formattedDate = `${createdAt.getDate()}-${months[createdAt.getMonth()]}-${createdAt.getFullYear()}`;
 
-          // Format time
-          let hours = createdAt.getHours();
-          const ampm = hours >= 12 ? "PM" : "AM";
-          hours = hours % 12;
-          hours = hours ? hours : 12; // Handle midnight (0 hours)
-          const minutes = createdAt.getMinutes();
-          const formattedTime = `${(hours < 10 ? "0" : "") + hours}:${(minutes < 10 ? "0" : "") + minutes
-            } ${ampm}`;
+      let hours = createdAt.getHours();
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      hours = hours ? hours : 12; // Handle midnight (0 hours)
+      const minutes = createdAt.getMinutes();
+      const formattedTime = `${(hours < 10 ? "0" : "") + hours}:${(minutes < 10 ? "0" : "") + minutes} ${ampm}`;
 
-          // Construct formatted date and time string
-          const formattedDateTime = `${formattedDate} ${formattedTime}`;
+      const formattedDateTime = `${formattedDate} ${formattedTime}`;
 
-          // Define icon and color based on status
-          let icon = "";
-          let color = "";
-          let textColor = "";
+      let icon = "";
+      let color = "";
+      let textColor = "";
 
-          if (rideRequestData.Status === "Completed" || rideRequestData.Status === "Accepted") {
-            icon = "<i class='fas fa-check-circle'></i>"; // Checkmark
-            color = "green";
-            textColor = "green";
-          } else if (rideRequestData.Status === "Cancelled") {
-            icon = "<i class='fas fa-times-circle'></i>"; // Cross
-            color = "red";
-            textColor = "red";
-            rideRequestData.ridefare = 0;
-          } else {
-            // Handle other statuses if needed
-            icon = "<i class='fas fa-question-circle'></i>"; // Question mark for unknown status
-            color = "grey";
-            textColor = "grey";
+      if (rideRequestData.Status === "Completed" || rideRequestData.Status === "Accepted") {
+        icon = "<i class='fas fa-check-circle'></i>"; // Checkmark
+        color = "green";
+        textColor = "green";
+      } else if (rideRequestData.Status === "Cancelled") {
+        icon = "<i class='fas fa-times-circle'></i>"; // Cross
+        color = "red";
+        textColor = "red";
+        rideRequestData.ridefare = 0;
+      } else {
+        icon = "<i class='fas fa-question-circle'></i>"; // Question mark for unknown status
+        color = "grey";
+        textColor = "grey";
+      }
+
+      // Fetch email and phone number using userid
+      const userId = rideRequestData.userid;
+      let uemail = "N/A";
+      let uphone = "N/A";
+
+      if (userId) {
+        const userSnapshot = await firebase.firestore().collection("googleusers").doc(userId).get();
+        if (userSnapshot.exists) {
+          const userData = userSnapshot.data();
+          uemail = userData.Email || uemail;
+          uphone = userData.phoneNumber || uphone;
+        } else {
+          const mobileUserSnapshot = await firebase.firestore().collection("mobileusers").doc(userId).get();
+          if (mobileUserSnapshot.exists) {
+            const mobileUserData = mobileUserSnapshot.data();
+            uemail = mobileUserData.Email || uemail;
+            uphone = mobileUserData.phoneNumber || uphone;
           }
+        }
+      }
 
-          const rideRequestInfo = `
-    <div class="ride-request">
-        <div class="status-container">
+      // Fetch email and phone number using driverId
+      const driverId = rideRequestData.driverid;
+      let demail = "N/A";
+      let dphone = "N/A";
+
+      if (driverId) {
+        const driverSnapshot = await firebase.firestore().collection("drivers").doc(driverId).get();
+        if (driverSnapshot.exists) {
+          const driverData = driverSnapshot.data();
+          demail = driverData.Email || demail;
+          dphone = driverData.Phonenumber || dphone;
+        }
+      }
+
+      const cancelReason = rideRequestData.Status === "Cancelled" && rideRequestData.canceldueto ? `
+        <p>
+          <i class="fas fa-exclamation-triangle" style="color: red; margin-right: 8px;"></i>
+          <strong>Cancelled Due To:</strong> ${rideRequestData.canceldueto}
+        </p>
+      ` : '';
+
+      const rideRequestInfo = `
+        <div class="ride-request">
+          <div class="status-container">
             <div class="status-icon" style="color: ${color};">${icon}</div>
             <h3 class="status-text" style="color: ${textColor};">${rideRequestData.Status}</h3>
-        </div>
-        <div class="ride-info">
+          </div>
+          <div class="ride-info">
             <h3>${formattedDateTime}</h3>
             <h3 style="color: green;">${rideRequestData.ridefare !== undefined ? " PKR " + rideRequestData.ridefare : " PKR 0"}</h3>
             <p>
               <i class="fas fa-user-tie" style="color: green; margin-right: 8px;"></i>
-              <strong></strong> ${rideRequestData.drivername || "N/A"}
+              <strong>Driver Name:</strong> ${rideRequestData.drivername || "N/A"}
+            </p>
+            <p>
+              <i class="fas fa-envelope" style="color: green; margin-right: 8px;"></i>
+              <strong>Driver Email:</strong> ${demail}
+            </p>
+            <p>
+              <i class="fas fa-phone" style="color: green; margin-right: 8px;"></i>
+              <strong>Driver Mobile Number:</strong> ${dphone}
             </p>
             <p>
               <i class="fas fa-map-marker-alt" style="color: green; margin-right: 8px;"></i>
-              <strong></strong> ${rideRequestData.pickup_address || "N/A"}
+              <strong>Pickup Address:</strong> ${rideRequestData.pickup_address || "N/A"}
             </p>
             <p>
               <i class="fas fa-map-marker-alt" style="color: red; margin-right: 8px;"></i>
-              <strong></strong> ${rideRequestData.destination_address || "N/A"}
+              <strong>Destination Address:</strong> ${rideRequestData.destination_address || "N/A"}
             </p>
             <p>
               <i class="fas fa-car" style="color: #edae10; margin-right: 8px;"></i>
-              <strong></strong> ${rideRequestData.carname || "N/A"}
+              <strong>Car Name:</strong> ${rideRequestData.carname || "N/A"}
+            </p>
+            <p>
+              <i class="fas fa-car" style="color: #edae10; margin-right: 8px;"></i>
+              <strong>Car Number:</strong> ${rideRequestData.carnumber || "N/A"}
             </p>
             <p>
               <i class="fas fa-user" style="color: #edae10; margin-right: 8px;"></i>
-              <strong></strong> ${rideRequestData.rider_name || "N/A"}
+              <strong>Rider Name:</strong> ${rideRequestData.rider_name || "N/A"}
             </p>
-            
+            <p>
+              <i class="fas fa-envelope" style="color: #edae10; margin-right: 8px;"></i>
+              <strong>Rider Email:</strong> ${uemail || "N/A"}
+            </p>
+            <p>
+              <i class="fas fa-phone" style="color: #edae10; margin-right: 8px;"></i>
+              <strong>Rider Mobile:</strong> ${uphone || "N/A"}
+            </p>
+            ${cancelReason}
+          </div>
         </div>
-    </div>
-`;
+      `;
 
-          rideRequestsDiv.innerHTML += rideRequestInfo;
-        });
-
-        console.log("Ride requests processed.");
-      } catch (error) {
-        console.error("Error fetching documents: ", error);
-      }
+      rideRequestsDiv.innerHTML += rideRequestInfo;
     }
 
-    // Call the function to fetch and display ride requests
-    fetchRideRequests();
+    console.log("Ride requests processed.");
+  } catch (error) {
+    console.error("Error fetching documents: ", error);
+  }
+}
+
+// Call the function to fetch and display ride requests
+fetchRideRequests();
+
+
 
     function filterRideRequests() {
-      var input, filter, rideRequests, rideRequest, rideRequestInfo, i, txtValue;
+      var input, filter, rideRequests, rideRequest, rideRequestInfo;
       input = document.getElementById("searchInput");
       filter = input.value.toUpperCase();
       rideRequests = document.querySelectorAll(".ride-request");
@@ -270,12 +300,7 @@
           rideRequest.style.display = "none";
         }
       });
-
     }
-
-    
-  
-
   </script>
   <script src="search.js"></script>
   <script type="module" src="dashboard1.js" defer></script>

@@ -37,7 +37,7 @@
           <li>
             <a href="dashboard.html">
               <i class="uil uil-estate"></i>
-              <span class="link-name">Dahsboard</span>
+              <span class="link-name">Dashboard</span>
             </a>
           </li>
           <li>
@@ -172,32 +172,46 @@
 
                 if (!requestDoc.empty) {
                   const userData = requestDoc.docs[0].data();
-                  const dataItem = document.createElement("div");
-                  dataItem.className = "dataItem";
+                  const driverDoc = await db
+                    .collection("drivers")
+                    .doc(doc.id)
+                    .get(); // Get driver document from drivers collection
 
-                  const rideIdField = document.createElement("div");
-                  rideIdField.className = "dataField";
-                  rideIdField.innerHTML = `<i class="fas fa-id-badge" style="color:#007791;"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">Ride ID:</span> ${chargedProfit.rideid}`;
-                  dataItem.appendChild(rideIdField);
+                  if (driverDoc.exists) {
+                    const driverData = driverDoc.data();
+                    const dataItem = document.createElement("div");
+                    dataItem.className = "dataItem";
 
-                  const driverNameField = document.createElement("div");
-                  driverNameField.className = "dataField";
-                  driverNameField.innerHTML = `<i class="fas fa-user" style="color:#edae10;"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">Driver Name:</span> ${userData.drivername}`;
-                  dataItem.appendChild(driverNameField);
+                    const rideIdField = document.createElement("div");
+                    rideIdField.className = "dataField";
+                    rideIdField.innerHTML = `<i class="fas fa-id-badge" style="color:#007791;"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">Ride ID:</span> ${chargedProfit.rideid}`;
+                    dataItem.appendChild(rideIdField);
 
-                  const companyProfitField = document.createElement("div");
-                  companyProfitField.className = "dataField";
-                  companyProfitField.innerHTML = `<i class="fas fa-chart-line" style="color:green;"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold; color:green;">Company Profit:</span> <span style="color:green;">${chargedProfit.companyprofit}</span>`;
-                  dataItem.appendChild(companyProfitField);
+                    const driverNameField = document.createElement("div");
+                    driverNameField.className = "dataField";
+                    driverNameField.innerHTML = `<i class="fas fa-user" style="color:#edae10;"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">Driver Name:</span> ${userData.drivername}`;
+                    dataItem.appendChild(driverNameField);
 
-                  const payStatusField = document.createElement("div");
-                  payStatusField.className = "dataField";
-                  payStatusField.innerHTML = `<i class="fas fa-money-check-alt"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">Pay Status:</span> <span style="color:${
-                    chargedProfit.paystatus === "unpaid" ? "red" : "#333"
-                  };">${chargedProfit.paystatus}</span>`;
-                  dataItem.appendChild(payStatusField);
+                    
 
-                  dataContainer.appendChild(dataItem);
+                    const companyProfitField = document.createElement("div");
+                    companyProfitField.className = "dataField";
+                    companyProfitField.innerHTML = `<i class="fas fa-chart-line" style="color:green;"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold; color:green;">Company Profit:</span> <span style="color:green;">${chargedProfit.companyprofit}</span>`;
+                    dataItem.appendChild(companyProfitField);
+
+                    const payStatusField = document.createElement("div");
+                    payStatusField.className = "dataField";
+                    payStatusField.innerHTML = `<i class="fas fa-money-check-alt"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;">Pay Status:</span> <span style="color:${
+                      chargedProfit.paystatus === "unpaid" ? "red" : "#333"
+                    };">${chargedProfit.paystatus}</span>`;
+                    dataItem.appendChild(payStatusField);
+
+                    dataContainer.appendChild(dataItem);
+                  } else {
+                    console.log(
+                      `Driver document with id ${doc.id} does not exist.`
+                    );
+                  }
                 } else {
                   console.log(
                     `RideRequest document with driverid ${doc.id} does not exist.`
